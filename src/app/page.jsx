@@ -43,7 +43,7 @@ export default function Home() {
         const data = res.data?.data || [];
         setCourses(data);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setCoursesLoading(false));
 
     // Fetch published blog posts
@@ -52,7 +52,7 @@ export default function Home() {
         const data = res.data?.data || [];
         setPosts(data);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setPostsLoading(false));
   }, []);
 
@@ -158,7 +158,7 @@ export default function Home() {
 
           {/* Subtitle */}
           <p className="text-base sm:text-lg text-white/60 leading-relaxed max-w-2xl mx-auto">
-            A unified learning platform built with Next.js and Strapi 5. Featuring sequential video lessons, 
+            A unified learning platform built with Next.js and Strapi 5. Featuring sequential video lessons,
             instant server-side auto-graded quizzes, persistent progress tracking, and 4 dedicated role workspaces.
           </p>
 
@@ -273,9 +273,8 @@ export default function Home() {
                     <span className="text-[10px] text-white/40">15 min</span>
                   </div>
 
-                  <div className={`flex items-center justify-between p-2 rounded-lg text-xs transition-colors ${
-                    previewCompleted ? 'bg-white/5 border border-white/5 text-white/90' : 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-200'
-                  }`}>
+                  <div className={`flex items-center justify-between p-2 rounded-lg text-xs transition-colors ${previewCompleted ? 'bg-white/5 border border-white/5 text-white/90' : 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-200'
+                    }`}>
                     <div className="flex items-center gap-2">
                       {previewCompleted ? (
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
@@ -299,8 +298,8 @@ export default function Home() {
                     </span>
                   </div>
                   <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 rounded-full transition-all duration-500" 
+                    <div
+                      className="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 rounded-full transition-all duration-500"
                       style={{ width: previewCompleted ? '100%' : '75%' }}
                     />
                   </div>
@@ -316,7 +315,7 @@ export default function Home() {
                   </div>
                   <h4 className="text-sm font-semibold text-white">Lesson 4: Deploying Next.js to Vercel & Strapi to Railway</h4>
                   <p className="text-xs text-white/50 max-w-sm mt-1">Configuring production environment variables, database linkings, and live CORS configurations.</p>
-                  
+
                   {/* Subtle video timeline bar */}
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
                     <div className="h-full bg-indigo-500 w-3/4" />
@@ -335,11 +334,10 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setPreviewCompleted(!previewCompleted)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-                      previewCompleted 
-                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${previewCompleted
+                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
                         : 'bg-white text-[#181826] hover:bg-white/90 shadow-md shadow-white/10'
-                    }`}
+                      }`}
                   >
                     <Check className="w-3.5 h-3.5" />
                     <span>{previewCompleted ? 'Completed ✓ (Click to reset)' : 'Mark Lesson as Complete'}</span>
@@ -390,7 +388,7 @@ export default function Home() {
             Four Tailored Workspaces. Zero Privilege Leaks.
           </h2>
           <p className="text-sm sm:text-base text-white/60">
-            Every user experiences a tailored interface with strict server-side policy enforcement. 
+            Every user experiences a tailored interface with strict server-side policy enforcement.
             No client-side workarounds or hidden button spoofing.
           </p>
         </div>
@@ -465,7 +463,7 @@ export default function Home() {
                 </li>
                 <li className="flex items-start gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Track enrolled students' progress</span>
+                  <span>Track enrolled students&apos; progress</span>
                 </li>
               </ul>
             </div>
@@ -592,7 +590,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-bold text-white">Persistent Progress Tracking</h3>
               <p className="text-sm text-white/60 leading-relaxed">
-                When a student completes a lesson, progress percentage is recalculated server-side and persisted in enrollment records. 
+                When a student completes a lesson, progress percentage is recalculated server-side and persisted in enrollment records.
                 Zero drift across devices and page refreshes.
               </p>
               <div className="pt-2 flex items-center gap-2 text-xs font-mono text-indigo-300">
@@ -607,7 +605,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-bold text-white">Server-Side Auto-Grading</h3>
               <p className="text-sm text-white/60 leading-relaxed">
-                MCQ quiz submissions are verified against secure database keys on the backend. 
+                MCQ quiz submissions are verified against secure database keys on the backend.
                 Students receive automatic score results immediately on submit with complete tamper protection.
               </p>
               <div className="pt-2 flex items-center gap-2 text-xs font-mono text-emerald-400">
@@ -622,7 +620,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-bold text-white">Draft vs Published Blog Engine</h3>
               <p className="text-sm text-white/60 leading-relaxed">
-                Content managers and admins author rich blog posts with strict visibility control. 
+                Content managers and admins author rich blog posts with strict visibility control.
                 Drafts are kept confidential while published articles are accessible to students and the public.
               </p>
               <div className="pt-2 flex items-center gap-2 text-xs font-mono text-purple-300">
@@ -727,7 +725,7 @@ export default function Home() {
               const title = post.attributes?.title || post.title;
               const body = post.attributes?.body || post.snippet;
               const author = post.attributes?.author?.username || post.author || 'Editorial';
-              const date = post.attributes?.createdAt 
+              const date = post.attributes?.createdAt
                 ? new Date(post.attributes.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                 : (post.date || 'Recent');
 
