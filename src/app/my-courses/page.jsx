@@ -1,63 +1,42 @@
 'use client';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import api from '@/lib/api';
-import { useAuth } from '@/context/AuthContext';
+
 import ProtectedRoute from '@/components/ProtectedRoute';
+import StudentWorkspace from '@/components/dashboard/StudentWorkspace';
+import { useAuth } from '@/context/AuthContext';
+import Link from 'next/link';
+import { LayoutDashboard, ArrowLeft } from 'lucide-react';
 
 function MyCoursesContent() {
-    const { user } = useAuth();
-    const [enrollments, setEnrollments] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
-    useEffect(() => {
-        if (!user) return;
-        api
-            .get(`/api/enrollments?filters[student][id][$eq]=${user.id}&populate=course`)
-            .then((res) => setEnrollments(res.data.data))
-            .catch(console.error)
-            .finally(() => setLoading(false));
-    }, [user]);
+  return (
+    <main className="min-h-screen bg-[#181826] text-white py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/10">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">My Learning Tracks</h1>
+          <p className="text-xs sm:text-sm text-white/50 mt-1">
+            Track your progress, view sequential lessons, and take auto-graded quizzes.
+          </p>
+        </div>
 
-    if (loading) return <p className="p-6">Loading...</p>;
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all shadow-md shadow-white/10"
+        >
+          <LayoutDashboard className="w-4 h-4" />
+          <span>Full Dashboard</span>
+        </Link>
+      </div>
 
-    return (
-        <main className="max-w-3xl mx-auto p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">My Courses</h1>
-                <Link href="/courses" className="underline text-sm">Browse more</Link>
-            </div>
-            {enrollments.length === 0 && (
-                <p className="text-gray-500">You haven't enrolled in any courses yet.</p>
-            )}
-            <div className="grid gap-4">
-                {enrollments.map((enr) => (
-                    <Link
-                        key={enr.id}
-                        href={`/courses/${enr.course.id}`}
-                        className="border rounded p-4 block hover:bg-gray-50"
-                    >
-                        <div className="flex justify-between items-center mb-2">
-                            <h2 className="font-semibold">{enr.course?.title}</h2>
-                            <span className="text-sm text-gray-600">{enr.progressPercent}%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded h-2">
-                            <div
-                                className="bg-black h-2 rounded"
-                                style={{ width: `${enr.progressPercent}%` }}
-                            />
-                        </div>
-                    </Link>
-                ))}
-            </div>
-        </main>
-    );
+      <StudentWorkspace user={user} />
+    </main>
+  );
 }
 
 export default function MyCoursesPage() {
-    return (
-        <ProtectedRoute allowedRoles={['student']}>
-            <MyCoursesContent />
-        </ProtectedRoute>
-    );
+  return (
+    <ProtectedRoute allowedRoles={['student', 'admin', 'content_manager', 'instructor']}>
+      <MyCoursesContent />
+    </ProtectedRoute>
+  );
 }
