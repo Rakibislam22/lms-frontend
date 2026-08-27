@@ -33,9 +33,9 @@ export function AuthProvider({ children }) {
         }
     };
 
-    const register = async (username, email, password, role = 'student') => {
+    const register = async (username, email, password) => {
         Cookies.remove('jwt');
-        const res = await api.post('/api/auth/local/register', { username, email, password, role });
+        const res = await api.post('/api/auth/local/register', { username, email, password });
         Cookies.set('jwt', res.data.jwt, { expires: 7 });
         const me = await api.get('/api/users/me?populate=role');
         setUser(me.data);
