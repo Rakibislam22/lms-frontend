@@ -1,5 +1,6 @@
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
+import { ModalProvider } from '@/context/ModalContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -13,11 +14,13 @@ export default function RootLayout({ children }) {
     <html lang="en" className="dark scroll-smooth">
       <body className="bg-[#181826] text-white min-h-screen flex flex-col selection:bg-white selection:text-[#181826]">
         <AuthProvider>
-          <Navbar />
-          <div className="flex-1 pt-18">
-            {children}
-          </div>
-          <Footer />
+          <ModalProvider>
+            <Navbar />
+            <div className="flex-1 pt-18">
+              {children}
+            </div>
+            <Footer />
+          </ModalProvider>
         </AuthProvider>
       </body>
     </html>
