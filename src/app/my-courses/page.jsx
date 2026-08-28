@@ -4,7 +4,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import StudentWorkspace from '@/components/dashboard/StudentWorkspace';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
-import { LayoutDashboard, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard } from 'lucide-react';
 
 function MyCoursesContent() {
   const { user } = useAuth();
