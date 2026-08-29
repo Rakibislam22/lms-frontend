@@ -127,11 +127,10 @@ export default function BlogPage() {
             <button
               key={topic}
               onClick={() => setSelectedTopic(topic)}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 ${
-                selectedTopic === topic
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 ${selectedTopic === topic
                   ? 'bg-white text-[#181826] shadow-md shadow-white/10'
                   : 'bg-[#1f1f33] text-white/60 hover:text-white hover:bg-white/5 border border-white/5'
-              }`}
+                }`}
             >
               {topic}
             </button>

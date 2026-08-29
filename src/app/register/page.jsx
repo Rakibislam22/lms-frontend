@@ -12,8 +12,46 @@ import {
   User as UserIcon,
   AlertCircle,
   GraduationCap,
+  BookOpen,
+  FileEdit,
   ShieldCheck
 } from 'lucide-react';
+
+const SIGNUP_ROLES = [
+  {
+    type: 'student',
+    title: 'Student',
+    desc: 'Enroll in courses, complete lessons & take quizzes',
+    icon: GraduationCap,
+    activeBg: 'bg-sky-500/10',
+    activeBorder: 'border-sky-500/40',
+    ringColor: 'ring-sky-500/30',
+    iconActive: 'bg-sky-500/20 text-sky-300',
+    radioActive: 'border-sky-400 bg-sky-500',
+  },
+  {
+    type: 'instructor',
+    title: 'Instructor',
+    desc: 'Create courses, publish lessons & build quizzes',
+    icon: BookOpen,
+    activeBg: 'bg-indigo-500/10',
+    activeBorder: 'border-indigo-500/40',
+    ringColor: 'ring-indigo-500/30',
+    iconActive: 'bg-indigo-500/20 text-indigo-300',
+    radioActive: 'border-indigo-400 bg-indigo-500',
+  },
+  {
+    type: 'content_manager',
+    title: 'Content Manager',
+    desc: 'Author technical articles & publish blog insights',
+    icon: FileEdit,
+    activeBg: 'bg-purple-500/10',
+    activeBorder: 'border-purple-500/40',
+    ringColor: 'ring-purple-500/30',
+    iconActive: 'bg-purple-500/20 text-purple-300',
+    radioActive: 'border-purple-400 bg-purple-500',
+  },
+];
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -21,6 +59,7 @@ export default function RegisterPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState('student');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -29,7 +68,7 @@ export default function RegisterPage() {
     setError('');
     setLoading(true);
     try {
-      await register(username, email, password);
+      await register(username, email, password, selectedRole);
       router.push('/dashboard');
     } catch (err) {
       setError(err.response?.data?.error?.message || 'Registration failed.');
@@ -38,9 +77,11 @@ export default function RegisterPage() {
     }
   };
 
+  const selectedRoleObj = SIGNUP_ROLES.find((r) => r.type === selectedRole) || SIGNUP_ROLES[0];
+
   return (
     <main className="min-h-[85vh] flex items-center justify-center p-4 sm:p-6 bg-[#181826] text-white">
-      <div className="relative w-full max-w-md rounded-3xl bg-[#1f1f33]/80 border border-white/10 p-8 shadow-2xl backdrop-blur-xl overflow-hidden">
+      <div className="relative w-full max-w-lg rounded-3xl bg-[#1f1f33]/80 border border-white/10 p-6 sm:p-8 shadow-2xl backdrop-blur-xl overflow-hidden">
         {/* Decorative Glow */}
         <div className="absolute -top-24 -right-24 w-72 h-72 bg-indigo-500/15 blur-3xl pointer-events-none" />
 
@@ -52,7 +93,7 @@ export default function RegisterPage() {
           </div>
           <h1 className="text-2xl font-extrabold tracking-tight text-white">Create Account</h1>
           <p className="text-xs text-white/50">
-            Sign up to enroll in courses, track progress, and take quizzes
+            Choose your learning or educator role and start exploring LearnSphere
           </p>
         </div>
 
@@ -64,6 +105,56 @@ export default function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Role Selector (Student, Instructor, Content Manager - Without Admin) */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-white/70 mb-2">
+              Select Your Role
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {SIGNUP_ROLES.map((r) => {
+                const Icon = r.icon;
+                const isSelected = selectedRole === r.type;
+                return (
+                  <button
+                    key={r.type}
+                    type="button"
+                    onClick={() => setSelectedRole(r.type)}
+                    className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between space-y-2 ${
+                      isSelected
+                        ? `${r.activeBg} ${r.activeBorder} ring-1 ${r.ringColor}`
+                        : 'bg-[#181826] border-white/10 hover:border-white/20 text-white/70'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div
+                        className={`w-7 h-7 rounded-xl flex items-center justify-center ${
+                          isSelected ? r.iconActive : 'bg-white/5 text-white/60'
+                        }`}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                      </div>
+                      <div
+                        className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                          isSelected ? r.radioActive : 'border-white/20'
+                        }`}
+                      >
+                        {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      </div>
+                    </div>
+                    <div>
+                      <div className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-white/90'}`}>
+                        {r.title}
+                      </div>
+                      <div className="text-[10px] text-white/40 leading-tight mt-0.5">
+                        {r.desc}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-white/70 mb-1.5">
               Username
@@ -118,9 +209,9 @@ export default function RegisterPage() {
 
           {/* Role Policy Notice */}
           <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-start gap-2.5 text-[11px] text-white/60">
-            <ShieldCheck className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              New accounts start with the <strong className="text-white">Student</strong> role. Instructors & Content Managers are assigned by Administrators via the Admin Dashboard.
+              Joining as <strong className="text-white">{selectedRoleObj.title}</strong>. Administrator accounts are restricted and managed internally.
             </span>
           </div>
 
@@ -136,7 +227,7 @@ export default function RegisterPage() {
               </>
             ) : (
               <>
-                <span>Get Started</span>
+                <span>Get Started as {selectedRoleObj.title}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </>
             )}
