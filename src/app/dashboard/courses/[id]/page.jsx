@@ -728,40 +728,48 @@ export default function CourseDetailPage({ params }) {
         ) : (
           /* VIEW B: EDUCATOR (INSTRUCTOR / ADMIN / CONTENT MANAGER) WORKSPACE */
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
-            {/* Educator Subtabs */}
-            <div className="flex items-center gap-2 border-b border-white/10 pb-3">
-              <button
-                onClick={() => setEducatorTab('curriculum')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${educatorTab === 'curriculum'
-                  ? 'bg-white text-[#181826]'
-                  : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
+            {/* Educator Subtabs (Responsive Navigation) */}
+            <div className="border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1 -mb-1">
+                <button
+                  onClick={() => setEducatorTab('curriculum')}
+                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${
+                    educatorTab === 'curriculum'
+                      ? 'bg-white text-[#181826]'
+                      : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
                   }`}
-              >
-                <Layers className="w-4 h-4" />
-                <span>Curriculum & Lessons ({lessons.length})</span>
-              </button>
+                >
+                  <Layers className="w-4 h-4 shrink-0" />
+                  <span className="hidden sm:inline">Curriculum & Lessons ({lessons.length})</span>
+                  <span className="sm:hidden">Curriculum ({lessons.length})</span>
+                </button>
 
-              <button
-                onClick={() => setEducatorTab('quizzes')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${educatorTab === 'quizzes'
-                  ? 'bg-white text-[#181826]'
-                  : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
+                <button
+                  onClick={() => setEducatorTab('quizzes')}
+                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${
+                    educatorTab === 'quizzes'
+                      ? 'bg-white text-[#181826]'
+                      : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
                   }`}
-              >
-                <Award className="w-4 h-4" />
-                <span>MCQ Quizzes ({quizzes.length})</span>
-              </button>
+                >
+                  <Award className="w-4 h-4 shrink-0" />
+                  <span className="hidden sm:inline">MCQ Quizzes ({quizzes.length})</span>
+                  <span className="sm:hidden">Quizzes ({quizzes.length})</span>
+                </button>
 
-              <button
-                onClick={() => setEducatorTab('students')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${educatorTab === 'students'
-                  ? 'bg-white text-[#181826]'
-                  : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
+                <button
+                  onClick={() => setEducatorTab('students')}
+                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${
+                    educatorTab === 'students'
+                      ? 'bg-white text-[#181826]'
+                      : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
                   }`}
-              >
-                <Users className="w-4 h-4" />
-                <span>Enrolled Students ({enrolledStudents.length})</span>
-              </button>
+                >
+                  <Users className="w-4 h-4 shrink-0" />
+                  <span className="hidden sm:inline">Enrolled Students ({enrolledStudents.length})</span>
+                  <span className="sm:hidden">Students ({enrolledStudents.length})</span>
+                </button>
+              </div>
             </div>
 
             {/* TAB 1: CURRICULUM */}
