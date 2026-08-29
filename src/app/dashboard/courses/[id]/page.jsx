@@ -733,11 +733,10 @@ export default function CourseDetailPage({ params }) {
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1 -mb-1">
                 <button
                   onClick={() => setEducatorTab('curriculum')}
-                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${
-                    educatorTab === 'curriculum'
+                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${educatorTab === 'curriculum'
                       ? 'bg-white text-[#181826]'
                       : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
-                  }`}
+                    }`}
                 >
                   <Layers className="w-4 h-4 shrink-0" />
                   <span className="hidden sm:inline">Curriculum & Lessons ({lessons.length})</span>
@@ -746,11 +745,10 @@ export default function CourseDetailPage({ params }) {
 
                 <button
                   onClick={() => setEducatorTab('quizzes')}
-                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${
-                    educatorTab === 'quizzes'
+                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${educatorTab === 'quizzes'
                       ? 'bg-white text-[#181826]'
                       : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
-                  }`}
+                    }`}
                 >
                   <Award className="w-4 h-4 shrink-0" />
                   <span className="hidden sm:inline">MCQ Quizzes ({quizzes.length})</span>
@@ -759,11 +757,10 @@ export default function CourseDetailPage({ params }) {
 
                 <button
                   onClick={() => setEducatorTab('students')}
-                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${
-                    educatorTab === 'students'
+                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${educatorTab === 'students'
                       ? 'bg-white text-[#181826]'
                       : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
-                  }`}
+                    }`}
                 >
                   <Users className="w-4 h-4 shrink-0" />
                   <span className="hidden sm:inline">Enrolled Students ({enrolledStudents.length})</span>

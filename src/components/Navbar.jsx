@@ -105,8 +105,8 @@ export default function Navbar() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-          ? 'bg-[#181826]/95 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/25'
-          : 'bg-[#181826]/80 backdrop-blur-sm border-b border-white/5'
+        ? 'bg-[#181826]/95 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/25'
+        : 'bg-[#181826]/80 backdrop-blur-sm border-b border-white/5'
         }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -133,11 +133,10 @@ export default function Navbar() {
           <nav className="hidden md:flex items-center justify-center gap-1 lg:gap-2">
             <Link
               href="/courses"
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${
-                pathname === '/courses'
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${pathname === '/courses'
                   ? 'bg-white/10 text-white border border-white/10 shadow-sm'
                   : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
+                }`}
             >
               All Courses
             </Link>
@@ -157,75 +156,75 @@ export default function Navbar() {
               <>
                 {/* Desktop Action Buttons */}
                 <div className="hidden md:flex items-center gap-2.5">
-                {/* Role Specific Action Buttons In Navbar */}
-                {roleType === 'admin' && (
-                  <>
+                  {/* Role Specific Action Buttons In Navbar */}
+                  {roleType === 'admin' && (
+                    <>
+                      <button
+                        onClick={openCreateCourse}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all shadow-sm shadow-white/10 active:scale-95"
+                      >
+                        <PlusCircle className="w-3.5 h-3.5 text-rose-600" />
+                        <span>Create Course</span>
+                      </button>
+                      <button
+                        onClick={openCreateBlog}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1f1f33] text-white font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
+                      >
+                        <FileEdit className="w-3.5 h-3.5 text-purple-400" />
+                        <span>New Blog</span>
+                      </button>
+                    </>
+                  )}
+
+                  {roleType === 'content_manager' && (
+                    <>
+                      <button
+                        onClick={openCreateCourse}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all shadow-sm shadow-white/10 active:scale-95"
+                      >
+                        <PlusCircle className="w-3.5 h-3.5 text-purple-600" />
+                        <span>Add Course</span>
+                      </button>
+                      <button
+                        onClick={openCreateBlog}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1f1f33] text-white font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
+                      >
+                        <FileEdit className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Write Article</span>
+                      </button>
+                    </>
+                  )}
+
+                  {roleType === 'instructor' && (
                     <button
                       onClick={openCreateCourse}
                       className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all shadow-sm shadow-white/10 active:scale-95"
                     >
-                      <PlusCircle className="w-3.5 h-3.5 text-rose-600" />
+                      <PlusCircle className="w-3.5 h-3.5 text-emerald-600" />
                       <span>Create Course</span>
                     </button>
-                    <button
-                      onClick={openCreateBlog}
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1f1f33] text-white font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
+                  )}
+
+                  {roleType === 'student' && (
+                    <Link
+                      href="/courses"
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1f1f33] text-white/90 font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
                     >
-                      <FileEdit className="w-3.5 h-3.5 text-purple-400" />
-                      <span>New Blog</span>
-                    </button>
-                  </>
-                )}
+                      <Search className="w-3.5 h-3.5 text-sky-400" />
+                      <span>Browse Courses</span>
+                    </Link>
+                  )}
 
-                {roleType === 'content_manager' && (
-                  <>
-                    <button
-                      onClick={openCreateCourse}
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all shadow-sm shadow-white/10 active:scale-95"
+                  {/* Dashboard Link - Hidden when arrived on /dashboard */}
+                  {!isDashboardPage && (
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#262640] text-white font-semibold text-xs border border-white/15 hover:bg-[#2e2e4e] transition-all"
                     >
-                      <PlusCircle className="w-3.5 h-3.5 text-purple-600" />
-                      <span>Add Course</span>
-                    </button>
-                    <button
-                      onClick={openCreateBlog}
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1f1f33] text-white font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
-                    >
-                      <FileEdit className="w-3.5 h-3.5 text-purple-400" />
-                      <span>Write Article</span>
-                    </button>
-                  </>
-                )}
-
-                {roleType === 'instructor' && (
-                  <button
-                    onClick={openCreateCourse}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all shadow-sm shadow-white/10 active:scale-95"
-                  >
-                    <PlusCircle className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Create Course</span>
-                  </button>
-                )}
-
-                {roleType === 'student' && (
-                  <Link
-                    href="/courses"
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1f1f33] text-white/90 font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
-                  >
-                    <Search className="w-3.5 h-3.5 text-sky-400" />
-                    <span>Browse Courses</span>
-                  </Link>
-                )}
-
-                {/* Dashboard Link - Hidden when arrived on /dashboard */}
-                {!isDashboardPage && (
-                  <Link
-                    href="/dashboard"
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#262640] text-white font-semibold text-xs border border-white/15 hover:bg-[#2e2e4e] transition-all"
-                  >
-                    <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>Dashboard</span>
-                  </Link>
-                )}
+                      <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
+                      <span>Dashboard</span>
+                    </Link>
+                  )}
                 </div>
 
                 {/* 3. Role-Styled Profile Logo Icon Only (Visible on Desktop & Mobile) */}

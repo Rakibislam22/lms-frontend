@@ -69,13 +69,13 @@ export default function DashboardShell() {
         return [
           { key: 'courses', label: 'All Courses & Hubs', shortLabel: 'Courses', icon: BookOpen },
           { key: 'users', label: 'Users & Roles', shortLabel: 'Users', icon: Users },
-          { key: 'blogs', label: 'Tech Blog & Publications', shortLabel: 'Blogs', icon: FileEdit },
+          { key: 'blogs', label: 'Blog & Publications', shortLabel: 'Blogs', icon: FileEdit },
           { key: 'progress', label: 'Student Progress Analytics', shortLabel: 'Analytics', icon: TrendingUp },
         ];
       case 'content_manager':
         return [
           { key: 'courses', label: 'Course Library', shortLabel: 'Courses', icon: BookOpen },
-          { key: 'blogs', label: 'Tech Blog & Publications', shortLabel: 'Blogs', icon: FileEdit },
+          { key: 'blogs', label: 'Blog & Publications', shortLabel: 'Blogs', icon: FileEdit },
           { key: 'progress', label: 'Student Progress Analytics', shortLabel: 'Analytics', icon: TrendingUp },
         ];
       case 'instructor':
@@ -117,8 +117,8 @@ export default function DashboardShell() {
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
                     className={`flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${isActive
-                        ? 'bg-white text-[#181826] shadow-lg shadow-white/10'
-                        : 'bg-[#1f1f33] text-white/70 hover:text-white hover:bg-[#262640] border border-white/5'
+                      ? 'bg-white text-[#181826] shadow-lg shadow-white/10'
+                      : 'bg-[#1f1f33] text-white/70 hover:text-white hover:bg-[#262640] border border-white/5'
                       }`}
                   >
                     <TabIcon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#181826]' : 'text-white/50'}`} />
