@@ -24,7 +24,7 @@ export default function ProgressTrackingTab({ user }) {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedResultForDetails, setSelectedResultForDetails] = useState(null);
+  const [selectedStudentQuizData, setSelectedStudentQuizData] = useState(null);
 
   const roleType = user?.role?.type || 'student';
 
@@ -127,7 +127,7 @@ export default function ProgressTrackingTab({ user }) {
                   <th className="py-3.5 px-4 font-semibold">Student</th>
                   <th className="py-3.5 px-4 font-semibold">Enrolled Course</th>
                   <th className="py-3.5 px-4 font-semibold">Course Completion %</th>
-                  <th className="py-3.5 px-4 font-semibold text-right">Quiz Assessment Details</th>
+                  <th className="py-3.5 px-4 font-semibold text-right">Average Quiz Score</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -165,6 +165,21 @@ export default function ProgressTrackingTab({ user }) {
 
                     return Boolean(matchesStudent && matchesCourse);
                   });
+
+                  // Calculate aggregate statistics for this student in this course
+                  const totalScore = matchingResults.reduce((acc, r) => {
+                    const rAttrs = r.attributes || r;
+                    return acc + (rAttrs.score ?? 0);
+                  }, 0);
+                  const totalPossible = matchingResults.reduce((acc, r) => {
+                    const rAttrs = r.attributes || r;
+                    return acc + (rAttrs.totalQuestions ?? 1);
+                  }, 0);
+                  const avgPercent = matchingResults.length > 0
+                    ? Math.round((totalScore / (totalPossible || 1)) * 100)
+                    : 0;
+                  const isAvgPassed = avgPercent >= 50;
+                  const attemptsCount = matchingResults.length;
 
                   return (
                     <tr key={enr.id} className="hover:bg-white/5 transition-colors">
@@ -207,72 +222,41 @@ export default function ProgressTrackingTab({ user }) {
                         </div>
                       </td>
 
-                      {/* Quiz Details */}
+                      {/* Average Quiz Score (Clickable to view all results) */}
                       <td className="py-3.5 px-4 text-right">
-                        {matchingResults.length > 0 ? (
-                          <div className="inline-flex flex-col items-end gap-2">
-                            {matchingResults.map((r, rIdx) => {
-                              const rAttrs = r.attributes || r;
-                              const score = rAttrs.score ?? 0;
-                              const total = rAttrs.totalQuestions ?? 1;
-                              const percent = Math.round((score / total) * 100);
-                              const isPassed = percent >= 50;
-                              const quizRef = rAttrs.quiz?.id || rAttrs.quiz?.data?.id;
-                              const quizDocRef = rAttrs.quiz?.documentId || rAttrs.quiz?.data?.attributes?.documentId;
-                              const mappedQuiz = (quizRef && quizMap[quizRef]?.quiz) || (quizDocRef && quizMap[quizDocRef]?.quiz);
-                              const fullQuiz = rAttrs.quiz?.questions ? rAttrs.quiz : mappedQuiz || rAttrs.quiz;
-                              const quizTitle = fullQuiz?.title || rAttrs.quiz?.title || 'Assessment Quiz';
-                              const formattedDate = rAttrs.createdAt
-                                ? new Date(rAttrs.createdAt).toLocaleDateString(undefined, {
-                                    month: 'short',
-                                    day: 'numeric',
-                                  })
-                                : '';
-
-                              return (
-                                <div
-                                  key={r.id || rIdx}
-                                  className="flex flex-col sm:flex-row items-end sm:items-center gap-1.5 justify-end"
-                                >
-                                  <div className="text-right">
-                                    <div className="text-[11px] font-semibold text-white/90 truncate max-w-[170px]" title={quizTitle}>
-                                      {quizTitle}
-                                    </div>
-                                    {formattedDate && (
-                                      <div className="text-[10px] text-white/40">{formattedDate}</div>
-                                    )}
-                                  </div>
-
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setSelectedResultForDetails({
-                                        ...rAttrs,
-                                        quiz: fullQuiz,
-                                        quizTitle,
-                                        studentName: student.username,
-                                        courseTitle: course.title,
-                                        isPassed,
-                                        score,
-                                        total,
-                                        percent,
-                                      })
-                                    }
-                                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold transition-all hover:scale-105 active:scale-95 ${
-                                      isPassed
-                                        ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20'
-                                        : 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20'
-                                    }`}
-                                    title="Click to inspect question-by-question submission breakdown"
-                                  >
-                                    <Eye className="w-3 h-3 shrink-0" />
-                                    <span>
-                                      {score}/{total} ({percent}%)
-                                    </span>
-                                  </button>
-                                </div>
-                              );
-                            })}
+                        {attemptsCount > 0 ? (
+                          <div className="inline-flex flex-col items-end gap-1">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setSelectedStudentQuizData({
+                                  student,
+                                  course,
+                                  results: matchingResults,
+                                  totalScore,
+                                  totalPossible,
+                                  avgPercent,
+                                  attemptsCount,
+                                  isAvgPassed,
+                                })
+                              }
+                              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all hover:scale-105 active:scale-95 shadow-sm ${
+                                isAvgPassed
+                                  ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20'
+                                  : 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20'
+                              }`}
+                              title="Click to view all quiz results and detailed question audit"
+                            >
+                              <Award className="w-3.5 h-3.5 shrink-0" />
+                              <span>Avg: {avgPercent}%</span>
+                              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/10 text-white/90">
+                                {attemptsCount} {attemptsCount === 1 ? 'quiz' : 'quizzes'}
+                              </span>
+                              <Eye className="w-3.5 h-3.5 text-white/50" />
+                            </button>
+                            <span className="text-[10px] text-white/40 pr-0.5">
+                              {totalScore} of {totalPossible} total marks
+                            </span>
                           </div>
                         ) : (
                           <span className="text-white/30 text-[11px] italic">No quiz taken</span>
@@ -287,10 +271,10 @@ export default function ProgressTrackingTab({ user }) {
         </div>
       )}
 
-      {/* Quiz Submission Details Inspection Modal */}
-      {selectedResultForDetails && (
+      {/* All Quiz Results Inspection Modal */}
+      {selectedStudentQuizData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="relative w-full max-w-xl rounded-3xl bg-[#181826] border border-white/15 p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+          <div className="relative w-full max-w-2xl rounded-3xl bg-[#181826] border border-white/15 p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/10 pb-3.5 shrink-0">
               <div className="flex items-center gap-3">
@@ -298,15 +282,15 @@ export default function ProgressTrackingTab({ user }) {
                   <Award className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">Quiz Submission Assessment Details</h3>
+                  <h3 className="text-sm font-bold text-white">All Quiz Submissions & Performance History</h3>
                   <p className="text-[11px] text-white/50">
-                    Student: <span className="text-white font-semibold">{selectedResultForDetails.studentName}</span> • Course:{' '}
-                    <span className="text-white font-semibold">{selectedResultForDetails.courseTitle}</span>
+                    Student: <span className="text-white font-semibold">{selectedStudentQuizData.student?.username}</span> • Course:{' '}
+                    <span className="text-white font-semibold">{selectedStudentQuizData.course?.title}</span>
                   </p>
                 </div>
               </div>
               <button
-                onClick={() => setSelectedResultForDetails(null)}
+                onClick={() => setSelectedStudentQuizData(null)}
                 className="p-1.5 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-colors"
                 aria-label="Close modal"
               >
@@ -314,115 +298,175 @@ export default function ProgressTrackingTab({ user }) {
               </button>
             </div>
 
-            {/* Score Summary Metrics Banner */}
+            {/* Overview Summary Banner */}
             <div className="p-3.5 rounded-2xl bg-[#1f1f33] border border-white/10 grid grid-cols-3 gap-3 text-center shrink-0">
               <div className="space-y-0.5">
-                <div className="text-white/40 text-[10px] uppercase font-semibold">Quiz Title</div>
-                <div className="text-xs font-bold text-white truncate px-1" title={selectedResultForDetails.quizTitle}>
-                  {selectedResultForDetails.quizTitle}
+                <div className="text-white/40 text-[10px] uppercase font-semibold">Average Score</div>
+                <div className={`text-base font-extrabold ${selectedStudentQuizData.isAvgPassed ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  {selectedStudentQuizData.avgPercent}%
                 </div>
               </div>
               <div className="space-y-0.5 border-x border-white/10 px-2">
-                <div className="text-white/40 text-[10px] uppercase font-semibold">Final Score</div>
-                <div className="text-xs font-bold text-white">
-                  {selectedResultForDetails.score} / {selectedResultForDetails.total} ({selectedResultForDetails.percent}%)
+                <div className="text-white/40 text-[10px] uppercase font-semibold">Total Quizzes Taken</div>
+                <div className="text-base font-extrabold text-white">
+                  {selectedStudentQuizData.attemptsCount}
                 </div>
               </div>
               <div className="space-y-0.5">
-                <div className="text-white/40 text-[10px] uppercase font-semibold">Status</div>
-                <div className={`text-xs font-bold ${selectedResultForDetails.isPassed ? 'text-emerald-400' : 'text-amber-400'}`}>
-                  {selectedResultForDetails.isPassed ? 'Passed ✓' : 'Needs Practice'}
+                <div className="text-white/40 text-[10px] uppercase font-semibold">Cumulative Marks</div>
+                <div className="text-base font-extrabold text-white">
+                  {selectedStudentQuizData.totalScore} / {selectedStudentQuizData.totalPossible}
                 </div>
               </div>
             </div>
 
-            {/* Question by Question Audit Log */}
-            <div className="overflow-y-auto flex-1 pr-1 space-y-3">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-white/40">
-                Question Breakdown & Student Answers
+            {/* List of All Results / Attempts */}
+            <div className="overflow-y-auto flex-1 pr-1 space-y-4">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-white/40 flex items-center justify-between">
+                <span>Quiz Attempts Breakdown ({selectedStudentQuizData.results.length})</span>
+                <span className="text-[10px] normal-case text-white/40">Chronological history</span>
               </div>
-              {Array.isArray(selectedResultForDetails.quiz?.questions) && selectedResultForDetails.quiz.questions.length > 0 ? (
-                selectedResultForDetails.quiz.questions.map((q, idx) => {
-                  const studentAns = selectedResultForDetails.answers?.[idx];
-                  const correctAns =
-                    q.correctAnswer ??
-                    (Array.isArray(q.options) && q.correctIndex !== undefined
-                      ? q.options[q.correctIndex]
-                      : null);
 
-                  let isCorrect = false;
-                  if (studentAns !== undefined && studentAns !== null && correctAns !== undefined && correctAns !== null) {
-                    const normStudent = String(studentAns).trim().toLowerCase();
-                    const normCorrect = String(correctAns).trim().toLowerCase();
-                    isCorrect = normStudent === normCorrect;
-                    if (!isCorrect && Array.isArray(q.options)) {
-                      const idxNum = parseInt(normStudent, 10);
-                      if (!isNaN(idxNum) && q.options[idxNum]) {
-                        isCorrect = String(q.options[idxNum]).trim().toLowerCase() === normCorrect;
-                      }
-                    }
-                  }
+              {selectedStudentQuizData.results.map((r, rIdx) => {
+                const rAttrs = r.attributes || r;
+                const score = rAttrs.score ?? 0;
+                const total = rAttrs.totalQuestions ?? 1;
+                const percent = Math.round((score / total) * 100);
+                const isPassed = percent >= 50;
 
-                  return (
-                    <div
-                      key={idx}
-                      className={`p-3.5 rounded-2xl border space-y-2 ${
-                        isCorrect ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-rose-500/10 border-rose-500/20'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <span className="font-bold text-xs text-white">
-                          #{idx + 1}. {q.question}
-                        </span>
+                const quizRef = rAttrs.quiz?.id || rAttrs.quiz?.data?.id;
+                const quizDocRef = rAttrs.quiz?.documentId || rAttrs.quiz?.data?.attributes?.documentId;
+                const mappedQuiz = (quizRef && quizMap[quizRef]?.quiz) || (quizDocRef && quizMap[quizDocRef]?.quiz);
+                const fullQuiz = rAttrs.quiz?.questions ? rAttrs.quiz : mappedQuiz || rAttrs.quiz;
+                const quizTitle = fullQuiz?.title || rAttrs.quiz?.title || 'Assessment Quiz';
+                const formattedDate = rAttrs.createdAt
+                  ? new Date(rAttrs.createdAt).toLocaleString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
+                  : 'N/A';
+
+                return (
+                  <div
+                    key={r.id || rIdx}
+                    className="p-4 rounded-2xl bg-[#1f1f33]/90 border border-white/10 space-y-3 shadow-md"
+                  >
+                    {/* Attempt Header */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-white/5 pb-2.5">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                            Attempt #{selectedStudentQuizData.results.length - rIdx}
+                          </span>
+                          <span className="text-xs font-bold text-white">{quizTitle}</span>
+                        </div>
+                        <div className="text-[11px] text-white/40 mt-0.5">Submitted on: {formattedDate}</div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
                         <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0 border ${
-                            isCorrect
-                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                              : 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                          className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${
+                            isPassed
+                              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+                              : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
                           }`}
                         >
-                          {isCorrect ? 'Correct ✓' : 'Incorrect ✗'}
+                          Score: {score}/{total} ({percent}%) {isPassed ? '✓ Passed' : '✗ Needs Practice'}
                         </span>
                       </div>
-
-                      <div className="space-y-1 text-xs">
-                        <div className="flex items-center gap-1.5 text-white/80">
-                          <span className="text-white/40 text-[11px]">Submitted Answer:</span>
-                          <span className={`font-semibold ${isCorrect ? 'text-emerald-300' : 'text-rose-300'}`}>
-                            {studentAns !== undefined && studentAns !== null && studentAns !== '' ? String(studentAns) : '(No response)'}
-                          </span>
-                        </div>
-                        {!isCorrect && correctAns && (
-                          <div className="flex items-center gap-1.5 text-emerald-400">
-                            <span className="text-white/40 text-[11px]">Correct Answer:</span>
-                            <span className="font-semibold">{correctAns}</span>
-                          </div>
-                        )}
-                      </div>
                     </div>
-                  );
-                })
-              ) : Array.isArray(selectedResultForDetails.answers) && selectedResultForDetails.answers.length > 0 ? (
-                selectedResultForDetails.answers.map((ans, idx) => (
-                  <div key={idx} className="p-3 rounded-xl bg-[#1f1f33] border border-white/5 flex items-center justify-between text-xs">
-                    <span className="text-white/60 font-medium">Question #{idx + 1}</span>
-                    <span className="text-white font-bold">{String(ans)}</span>
+
+                    {/* Question by Question Breakdown */}
+                    <div className="space-y-2">
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-white/40">
+                        Submitted Question Answers:
+                      </div>
+
+                      {Array.isArray(fullQuiz?.questions) && fullQuiz.questions.length > 0 ? (
+                        fullQuiz.questions.map((q, qIdx) => {
+                          const studentAns = rAttrs.answers?.[qIdx];
+                          const correctAns =
+                            q.correctAnswer ??
+                            (Array.isArray(q.options) && q.correctIndex !== undefined
+                              ? q.options[q.correctIndex]
+                              : null);
+
+                          let isCorrect = false;
+                          if (studentAns !== undefined && studentAns !== null && correctAns !== undefined && correctAns !== null) {
+                            const normStudent = String(studentAns).trim().toLowerCase();
+                            const normCorrect = String(correctAns).trim().toLowerCase();
+                            isCorrect = normStudent === normCorrect;
+                            if (!isCorrect && Array.isArray(q.options)) {
+                              const idxNum = parseInt(normStudent, 10);
+                              if (!isNaN(idxNum) && q.options[idxNum]) {
+                                isCorrect = String(q.options[idxNum]).trim().toLowerCase() === normCorrect;
+                              }
+                            }
+                          }
+
+                          return (
+                            <div
+                              key={qIdx}
+                              className={`p-3 rounded-xl border text-xs space-y-1.5 ${
+                                isCorrect ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-rose-500/5 border-rose-500/20'
+                              }`}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <span className="font-semibold text-white">
+                                  Q{qIdx + 1}: {q.question}
+                                </span>
+                                <span
+                                  className={`text-[10px] font-bold px-1.5 py-0.2 rounded shrink-0 ${
+                                    isCorrect ? 'text-emerald-400' : 'text-rose-400'
+                                  }`}
+                                >
+                                  {isCorrect ? 'Correct ✓' : 'Incorrect ✗'}
+                                </span>
+                              </div>
+
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-x-4 gap-y-1 text-[11px]">
+                                <div className="text-white/70">
+                                  <span className="text-white/40">Student answer:</span>{' '}
+                                  <span className={`font-semibold ${isCorrect ? 'text-emerald-300' : 'text-rose-300'}`}>
+                                    {studentAns !== undefined && studentAns !== null && studentAns !== '' ? String(studentAns) : '(None)'}
+                                  </span>
+                                </div>
+                                {!isCorrect && correctAns && (
+                                  <div className="text-emerald-400">
+                                    <span className="text-white/40">Correct answer:</span>{' '}
+                                    <span className="font-semibold">{correctAns}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : Array.isArray(rAttrs.answers) && rAttrs.answers.length > 0 ? (
+                        rAttrs.answers.map((ans, aIdx) => (
+                          <div key={aIdx} className="p-2.5 rounded-lg bg-white/5 text-[11px] flex items-center justify-between">
+                            <span className="text-white/50">Question #{aIdx + 1}</span>
+                            <span className="text-white font-semibold">{String(ans)}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-white/40 text-[11px] italic">No question breakdown available for this attempt.</div>
+                      )}
+                    </div>
                   </div>
-                ))
-              ) : (
-                <div className="p-6 text-center text-white/40 text-xs">
-                  No individual question submission logs recorded for this quiz attempt.
-                </div>
-              )}
+                );
+              })}
             </div>
 
             {/* Footer */}
             <div className="pt-3 border-t border-white/10 flex justify-end shrink-0">
               <button
-                onClick={() => setSelectedResultForDetails(null)}
+                onClick={() => setSelectedStudentQuizData(null)}
                 className="px-4 py-2 rounded-xl bg-white text-[#181826] text-xs font-bold hover:bg-white/90 transition-all active:scale-95 shadow-md shadow-white/10"
               >
-                Close Details
+                Close Audit
               </button>
             </div>
           </div>
@@ -431,4 +475,3 @@ export default function ProgressTrackingTab({ user }) {
     </div>
   );
 }
-
