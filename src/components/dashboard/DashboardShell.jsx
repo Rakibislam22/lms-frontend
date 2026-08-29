@@ -112,11 +112,10 @@ export default function DashboardShell() {
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${
-                    isActive
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${isActive
                       ? 'bg-white text-[#181826] shadow-lg shadow-white/10'
                       : 'bg-[#1f1f33] text-white/70 hover:text-white hover:bg-[#262640] border border-white/5'
-                  }`}
+                    }`}
                 >
                   <TabIcon className={`w-4 h-4 ${isActive ? 'text-[#181826]' : 'text-white/50'}`} />
                   <span>{tab.label}</span>

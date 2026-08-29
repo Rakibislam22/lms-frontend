@@ -104,11 +104,10 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
           ? 'bg-[#181826]/95 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/25'
           : 'bg-[#181826]/80 backdrop-blur-sm border-b border-white/5'
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-18">
@@ -232,13 +231,11 @@ export default function Navbar() {
                 <div className="relative pl-1 border-l border-white/10" ref={profileRef}>
                   <button
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs border transition-all duration-200 select-none shadow-md ${
-                      currentRole.avatarClass
-                    } ${
-                      profileMenuOpen
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs border transition-all duration-200 select-none shadow-md ${currentRole.avatarClass
+                      } ${profileMenuOpen
                         ? 'scale-105 ring-2 ring-white/30 brightness-110'
                         : 'hover:scale-105 hover:brightness-110 active:scale-95'
-                    }`}
+                      }`}
                     title={`Profile: ${user.username} (${currentRole.label})`}
                     aria-label="View profile details"
                   >
@@ -311,7 +308,7 @@ export default function Navbar() {
                             >
                               <span className="flex items-center gap-2 font-medium">
                                 <BookOpen className="w-3.5 h-3.5 text-purple-400" />
-                                <span>My Added Courses</span>
+                                <span>Courses Library</span>
                               </span>
                               <ArrowRight className="w-3 h-3 text-white/40" />
                             </Link>
@@ -326,7 +323,7 @@ export default function Navbar() {
                             >
                               <span className="flex items-center gap-2 font-medium">
                                 <FileEdit className="w-3.5 h-3.5 text-purple-400" />
-                                <span>My Added Blogs</span>
+                                <span>Blog & Publications</span>
                               </span>
                               <ArrowRight className="w-3 h-3 text-white/40" />
                             </Link>
