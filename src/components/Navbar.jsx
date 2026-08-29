@@ -283,9 +283,9 @@ export default function Navbar() {
                         </span>
                       </div>
 
-                      {/* Contextual Link (Go to Dashboard removed since it is in Navbar) */}
+                      {/* Contextual Links */}
                       <div className="space-y-1 pt-0.5">
-                        {roleType === 'student' ? (
+                        {roleType === 'student' && (
                           <Link
                             href="/my-courses"
                             onClick={() => setProfileMenuOpen(false)}
@@ -297,18 +297,91 @@ export default function Navbar() {
                             </span>
                             <ArrowRight className="w-3 h-3 text-white/40" />
                           </Link>
-                        ) : (
+                        )}
+
+                        {roleType === 'content_manager' && (
+                          <>
+                            <Link
+                              href="/dashboard?tab=courses"
+                              onClick={() => {
+                                setProfileMenuOpen(false);
+                                window.dispatchEvent(new CustomEvent('switch-dashboard-tab', { detail: 'courses' }));
+                              }}
+                              className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 text-xs text-white/80 hover:text-white transition-colors"
+                            >
+                              <span className="flex items-center gap-2 font-medium">
+                                <BookOpen className="w-3.5 h-3.5 text-purple-400" />
+                                <span>My Added Courses</span>
+                              </span>
+                              <ArrowRight className="w-3 h-3 text-white/40" />
+                            </Link>
+
+                            <Link
+                              href="/dashboard?tab=blogs"
+                              onClick={() => {
+                                setProfileMenuOpen(false);
+                                window.dispatchEvent(new CustomEvent('switch-dashboard-tab', { detail: 'blogs' }));
+                              }}
+                              className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 text-xs text-white/80 hover:text-white transition-colors"
+                            >
+                              <span className="flex items-center gap-2 font-medium">
+                                <FileEdit className="w-3.5 h-3.5 text-purple-400" />
+                                <span>My Added Blogs</span>
+                              </span>
+                              <ArrowRight className="w-3 h-3 text-white/40" />
+                            </Link>
+                          </>
+                        )}
+
+                        {roleType === 'instructor' && (
                           <Link
-                            href="/courses"
-                            onClick={() => setProfileMenuOpen(false)}
+                            href="/dashboard?tab=courses"
+                            onClick={() => {
+                              setProfileMenuOpen(false);
+                              window.dispatchEvent(new CustomEvent('switch-dashboard-tab', { detail: 'courses' }));
+                            }}
                             className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 text-xs text-white/80 hover:text-white transition-colors"
                           >
                             <span className="flex items-center gap-2 font-medium">
-                              <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
-                              <span>Course Catalog</span>
+                              <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+                              <span>My Courses</span>
                             </span>
                             <ArrowRight className="w-3 h-3 text-white/40" />
                           </Link>
+                        )}
+
+                        {roleType === 'admin' && (
+                          <>
+                            <Link
+                              href="/dashboard?tab=courses"
+                              onClick={() => {
+                                setProfileMenuOpen(false);
+                                window.dispatchEvent(new CustomEvent('switch-dashboard-tab', { detail: 'courses' }));
+                              }}
+                              className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 text-xs text-white/80 hover:text-white transition-colors"
+                            >
+                              <span className="flex items-center gap-2 font-medium">
+                                <BookOpen className="w-3.5 h-3.5 text-rose-400" />
+                                <span>All Courses</span>
+                              </span>
+                              <ArrowRight className="w-3 h-3 text-white/40" />
+                            </Link>
+
+                            <Link
+                              href="/dashboard?tab=blogs"
+                              onClick={() => {
+                                setProfileMenuOpen(false);
+                                window.dispatchEvent(new CustomEvent('switch-dashboard-tab', { detail: 'blogs' }));
+                              }}
+                              className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 text-xs text-white/80 hover:text-white transition-colors"
+                            >
+                              <span className="flex items-center gap-2 font-medium">
+                                <FileEdit className="w-3.5 h-3.5 text-rose-400" />
+                                <span>All Blogs</span>
+                              </span>
+                              <ArrowRight className="w-3 h-3 text-white/40" />
+                            </Link>
+                          </>
                         )}
                       </div>
 
