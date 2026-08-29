@@ -157,49 +157,43 @@ export default function CourseDetailPage({ params }) {
         }
 
         const completed = new Set();
-
-        // Check localStorage cache first for immediate consistency
-        const cacheKey = `learnsphere_completed_${user.id}_${actualCourseId}`;
-        try {
-          const cached = localStorage.getItem(cacheKey);
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            if (Array.isArray(parsed)) {
-              parsed.forEach((id) => completed.add(id));
-            }
-          }
-        } catch { }
+        const currentCourseLessonIds = new Set(fetchedLessons.map((l) => l.id));
 
         // Populate from server records
-        const currentCourseLessonIds = new Set(fetchedLessons.map((l) => l.id));
-        const currentCourseDocIds = new Set(fetchedLessons.map((l) => l.documentId).filter(Boolean));
-
         userLessonProgresses.forEach((p) => {
           const attrs = p.attributes || p;
           const isComp = attrs.completed === true || attrs.isCompleted === true;
           if (isComp) {
             const lData = attrs.lesson?.data?.attributes || attrs.lesson?.data || attrs.lesson;
             const lId = lData?.id ?? (typeof lData === 'number' ? lData : null);
-            const lDocId = lData?.documentId;
 
-            // Only add if it belongs to this course's lessons (or if lesson info not nested, match directly)
             if (lId && (currentCourseLessonIds.has(lId) || currentCourseLessonIds.size === 0)) {
-              completed.add(lId);
-            }
-            if (lDocId && (currentCourseDocIds.has(lDocId) || currentCourseDocIds.size === 0)) {
-              completed.add(lDocId);
-            }
-            if (lId && !currentCourseLessonIds.has(lId) && currentCourseLessonIds.size > 0) {
-              // Also add by lessonId if lesson was passed as raw ID
               completed.add(lId);
             }
           }
         });
 
-        // Keep local cache synced with verified completions
+        // Also check localStorage cache fallback
+        const cacheKey = `learnsphere_completed_${user.id}_${actualCourseId}`;
         try {
-          localStorage.setItem(cacheKey, JSON.stringify([...completed]));
-        } catch { }
+          const cached = localStorage.getItem(cacheKey);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed)) {
+              parsed.forEach((id) => {
+                if (currentCourseLessonIds.has(id)) {
+                  completed.add(id);
+                }
+              });
+            }
+          }
+        } catch {}
+
+        // Keep local cache clean with only verified course lesson IDs
+        const validIds = fetchedLessons.filter((l) => completed.has(l.id)).map((l) => l.id);
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify(validIds));
+        } catch {}
 
         setCompletedLessonIds(completed);
 
@@ -236,31 +230,27 @@ export default function CourseDetailPage({ params }) {
   const handleToggleLessonComplete = async (lessonId) => {
     if (!user || !course) return;
     const actualCourseId = course.id;
-    const isCurrentlyDone = completedLessonIds.has(lessonId) || (activeLesson?.documentId && completedLessonIds.has(activeLesson.documentId));
+    const isCurrentlyDone = completedLessonIds.has(lessonId);
     const nextStatus = !isCurrentlyDone;
 
     // Optimistically update local completed set
     const nextCompleted = new Set(completedLessonIds);
     if (nextStatus) {
       nextCompleted.add(lessonId);
-      if (activeLesson?.documentId) nextCompleted.add(activeLesson.documentId);
     } else {
       nextCompleted.delete(lessonId);
-      if (activeLesson?.documentId) nextCompleted.delete(activeLesson.documentId);
     }
     setCompletedLessonIds(nextCompleted);
 
-    // Save to local cache immediately
+    // Save strictly valid course lesson IDs to local cache
+    const validIds = lessons.filter((l) => nextCompleted.has(l.id)).map((l) => l.id);
     const cacheKey = `learnsphere_completed_${user.id}_${actualCourseId}`;
     try {
-      localStorage.setItem(cacheKey, JSON.stringify([...nextCompleted]));
-    } catch { }
+      localStorage.setItem(cacheKey, JSON.stringify(validIds));
+    } catch {}
 
     // Calculate new percentage based on completed lessons
-    const newCount = lessons.filter(
-      (l) => nextCompleted.has(l.id) || (l.documentId && nextCompleted.has(l.documentId))
-    ).length;
-    const newPct = lessons.length > 0 ? Math.min(100, Math.round((newCount / lessons.length) * 100)) : 0;
+    const newPct = lessons.length > 0 ? Math.min(100, Math.round((validIds.length / lessons.length) * 100)) : 0;
 
     // Optimistically update enrollment state
     if (enrollment) {
@@ -377,24 +367,18 @@ export default function CourseDetailPage({ params }) {
 
   const courseAttrs = course.attributes || course;
 
-  const completedLessonsCount = lessons.filter(
-    (l) => completedLessonIds.has(l.id) || (l.documentId && completedLessonIds.has(l.documentId))
-  ).length;
+  const completedLessonsCount = lessons.filter((l) => completedLessonIds.has(l.id)).length;
 
   const calculatedPercent = lessons.length > 0
     ? Math.min(100, Math.round((completedLessonsCount / lessons.length) * 100))
     : 0;
 
-  const progressPercent = enrollment
-    ? Math.max(calculatedPercent, enrollment.attributes?.progressPercent ?? enrollment.progressPercent ?? 0)
-    : calculatedPercent;
+  const progressPercent = calculatedPercent;
 
   const currentLessonIdx = lessons.findIndex((l) => l.id === activeLesson?.id);
   const prevLesson = currentLessonIdx > 0 ? lessons[currentLessonIdx - 1] : null;
   const nextLesson = currentLessonIdx < lessons.length - 1 ? lessons[currentLessonIdx + 1] : null;
-  const isLessonDone = activeLesson
-    ? completedLessonIds.has(activeLesson.id) || (activeLesson.documentId && completedLessonIds.has(activeLesson.documentId))
-    : false;
+  const isLessonDone = activeLesson ? completedLessonIds.has(activeLesson.id) : false;
 
   const activeLessonAttrs = activeLesson ? activeLesson.attributes || activeLesson : null;
   const youtubeEmbed = activeLessonAttrs?.videoUrl
@@ -634,7 +618,7 @@ export default function CourseDetailPage({ params }) {
                     <div className="space-y-2 max-h-[480px] overflow-y-auto pr-1">
                       {lessons.map((lesson, idx) => {
                         const lAttrs = lesson.attributes || lesson;
-                        const isDone = completedLessonIds.has(lesson.id) || (lesson.documentId && completedLessonIds.has(lesson.documentId));
+                        const isDone = completedLessonIds.has(lesson.id);
                         const isSelected = activeLesson?.id === lesson.id;
 
                         return (
