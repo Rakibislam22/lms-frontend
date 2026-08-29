@@ -67,12 +67,7 @@ export default function ProgressTrackingTab({ user }) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-white tracking-tight">Student Progress & Learning Analytics</h2>
-            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
-              {roleType === 'instructor' ? 'My Courses' : 'Platform Wide'}
-            </span>
-          </div>
+          <h2 className="text-xl font-bold text-white tracking-tight">Student Progress & Learning Analytics</h2>
           <p className="text-xs text-white/50 mt-0.5">
             Real-time enrollment completion percentages and auto-graded quiz score audit log.
           </p>
