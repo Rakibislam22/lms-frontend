@@ -333,6 +333,24 @@ export default function CourseDetailPage({ params }) {
     }
   };
 
+  const handleQuizCompleted = (resData) => {
+    if (resData && activeQuizToRun) {
+      const enrichedResult = {
+        ...resData,
+        quiz: activeQuizToRun,
+      };
+      setQuizResults((prev) => {
+        const filtered = prev.filter(
+          (r) =>
+            (r.attributes?.quiz?.id || r.quiz?.id) !== activeQuizToRun.id &&
+            (r.attributes?.quiz?.documentId || r.quiz?.documentId) !== activeQuizToRun.documentId
+        );
+        return [enrichedResult, ...filtered];
+      });
+    }
+    fetchAllData();
+  };
+
   if (loading) {
     return (
       <ProtectedRoute>
@@ -662,13 +680,15 @@ export default function CourseDetailPage({ params }) {
                         {quizzes.map((quiz) => {
                           const qAttrs = quiz.attributes || quiz;
                           const previousResult = quizResults.find(
-                            (r) => (r.attributes?.quiz?.id || r.quiz?.id) === quiz.id
+                            (r) =>
+                              (r.attributes?.quiz?.id || r.quiz?.id || (typeof r.quiz === 'number' ? r.quiz : null)) === quiz.id ||
+                              (r.attributes?.quiz?.documentId || r.quiz?.documentId) === quiz.documentId
                           );
                           const prevScore = previousResult
-                            ? previousResult.attributes?.score ?? previousResult.score
+                            ? previousResult.attributes?.score ?? previousResult.score ?? null
                             : null;
                           const prevTotal = previousResult
-                            ? previousResult.attributes?.totalQuestions ?? previousResult.totalQuestions
+                            ? previousResult.attributes?.totalQuestions ?? previousResult.totalQuestions ?? null
                             : null;
 
                           return (
@@ -976,7 +996,8 @@ export default function CourseDetailPage({ params }) {
             onClose={() => setActiveQuizToRun(null)}
             quiz={activeQuizToRun}
             studentId={user?.id}
-            onQuizSubmitted={fetchAllData}
+            onCompleted={handleQuizCompleted}
+            onQuizSubmitted={handleQuizCompleted}
           />
         )}
       </div>
