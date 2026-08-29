@@ -90,28 +90,73 @@ export default function StatsOverview({ user, statsTrigger }) {
         } else {
           // Student: enrollments, completed lessons, quiz results
           const [enrollmentsRes, progressesRes, resultsRes] = await Promise.all([
-            api.get(`/api/enrollments?filters[student][id][$eq]=${user.id}&populate=course`),
-            api.get(`/api/lesson-progresses?filters[student][id][$eq]=${user.id}&filters[completed][$eq]=true`),
+            api.get(`/api/enrollments?filters[student][id][$eq]=${user.id}&populate[course][populate]=*`),
+            api.get(`/api/lesson-progresses?filters[student][id][$eq]=${user.id}&populate=*`),
             api.get(`/api/quiz-results?filters[student][id][$eq]=${user.id}&populate=quiz`),
           ]);
 
           const myEnrollments = enrollmentsRes.data?.data || [];
-          const completedLessons = progressesRes.data?.data || [];
+          const rawProgresses = progressesRes.data?.data || [];
           const quizResults = resultsRes.data?.data || [];
 
-          let avgProgress = 0;
-          if (myEnrollments.length > 0) {
-            const totalP = myEnrollments.reduce((acc, curr) => {
-              const p = curr.progressPercent ?? curr.attributes?.progressPercent ?? 0;
-              return acc + p;
-            }, 0);
-            avgProgress = Math.round(totalP / myEnrollments.length);
-          }
+          // Collect unique completed lessons
+          const completedProgresses = rawProgresses.filter((p) => {
+            const attrs = p.attributes || p;
+            return attrs.completed === true || attrs.isCompleted === true;
+          });
+
+          const completedLessonIdSet = new Set();
+          completedProgresses.forEach((p) => {
+            const attrs = p.attributes || p;
+            const l = attrs.lesson?.data?.attributes || attrs.lesson?.data || attrs.lesson;
+            if (l?.id) completedLessonIdSet.add(l.id);
+            if (l?.documentId) completedLessonIdSet.add(l.documentId);
+            if (typeof l === 'number') completedLessonIdSet.add(l);
+          });
+
+          let totalProgress = 0;
+          myEnrollments.forEach((curr) => {
+            const course = curr.course?.data?.attributes || curr.course || {};
+            const courseId = curr.course?.id || curr.course?.data?.id || course.id;
+            const courseLessons = Array.isArray(course.lessons)
+              ? course.lessons
+              : course.lessons?.data || [];
+            const lessonsCount = courseLessons.length;
+
+            const doneCount = courseLessons.filter(
+              (l) => completedLessonIdSet.has(l.id) || (l.documentId && completedLessonIdSet.has(l.documentId))
+            ).length;
+
+            let p = lessonsCount > 0
+              ? Math.min(100, Math.round((doneCount / lessonsCount) * 100))
+              : (curr.progressPercent ?? curr.attributes?.progressPercent ?? 0);
+
+            // Also check localStorage cache fallback
+            if (typeof window !== 'undefined' && user?.id && courseId) {
+              try {
+                const cached = localStorage.getItem(`learnsphere_completed_${user.id}_${courseId}`);
+                if (cached) {
+                  const ids = JSON.parse(cached);
+                  if (Array.isArray(ids) && lessonsCount > 0) {
+                    const fromCache = Math.min(100, Math.round((ids.length / lessonsCount) * 100));
+                    p = Math.max(p, fromCache);
+                  }
+                }
+              } catch {}
+            }
+
+            p = Math.max(p, curr.progressPercent ?? curr.attributes?.progressPercent ?? 0);
+            totalProgress += p;
+          });
+
+          const avgProgress = myEnrollments.length > 0
+            ? Math.round(totalProgress / myEnrollments.length)
+            : 0;
 
           if (isMounted) {
             setStats({
               enrolledCourses: myEnrollments.length,
-              completedLessons: completedLessons.length,
+              completedLessons: completedLessonIdSet.size > 0 ? completedLessonIdSet.size : completedProgresses.length,
               avgProgress,
               quizzesTaken: quizResults.length,
             });
