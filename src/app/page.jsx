@@ -335,8 +335,8 @@ export default function Home() {
                     type="button"
                     onClick={() => setPreviewCompleted(!previewCompleted)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${previewCompleted
-                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
-                        : 'bg-white text-[#181826] hover:bg-white/90 shadow-md shadow-white/10'
+                      ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                      : 'bg-white text-[#181826] hover:bg-white/90 shadow-md shadow-white/10'
                       }`}
                   >
                     <Check className="w-3.5 h-3.5" />
@@ -717,11 +717,18 @@ export default function Home() {
               <h2 className="text-3xl font-bold tracking-tight text-white">Latest from the Tech Blog</h2>
               <p className="text-sm text-white/60 mt-1">Articles and technical insights authored by content managers and admins.</p>
             </div>
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors shrink-0"
+            >
+              <span>View All Articles</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {(posts.length > 0 ? posts : fallbackPosts).map((post, idx) => {
-              const id = post.id;
+              const id = post.documentId || post.id;
               const title = post.attributes?.title || post.title;
               const body = post.attributes?.body || post.snippet;
               const author = post.attributes?.author?.username || post.author || 'Editorial';
@@ -741,7 +748,7 @@ export default function Home() {
                     </div>
 
                     <h3 className="text-base font-bold text-white group-hover:text-purple-200 transition-colors leading-snug">
-                      {title}
+                      <Link href={`/blog/${id}`}>{title}</Link>
                     </h3>
 
                     <p className="text-xs text-white/60 line-clamp-3 leading-relaxed">
@@ -751,9 +758,13 @@ export default function Home() {
 
                   <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-white/50 mt-4">
                     <span>By {author}</span>
-                    <span className="text-white/80 font-medium group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1">
-                      Read <ArrowRight className="w-3 h-3" />
-                    </span>
+                    <Link
+                      href={`/blog/${id}`}
+                      className="text-white/80 font-medium group-hover:text-purple-300 group-hover:translate-x-0.5 transition-all inline-flex items-center gap-1"
+                    >
+                      <span>Read</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
                   </div>
                 </div>
               );

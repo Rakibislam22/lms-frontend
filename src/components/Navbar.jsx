@@ -131,18 +131,27 @@ export default function Navbar() {
 
           {/* 2. Middle Navigation Links (All Courses & Blog Centered) */}
           <nav className="hidden md:flex items-center justify-center gap-1 lg:gap-2">
+            
+            <Link href="/" className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${pathname === '/' ? 'bg-white/10 text-white border border-white/10 shadow-sm' : 'text-white/70 hover:text-white hover:bg-white/5'}`}>
+                Home
+            </Link>
+            
             <Link
               href="/courses"
               className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${pathname === '/courses'
-                  ? 'bg-white/10 text-white border border-white/10 shadow-sm'
-                  : 'text-white/70 hover:text-white hover:bg-white/5'
+                ? 'bg-white/10 text-white border border-white/10 shadow-sm'
+                : 'text-white/70 hover:text-white hover:bg-white/5'
                 }`}
             >
               All Courses
             </Link>
             <Link
-              href="/#blog"
-              className="px-3.5 py-1.5 text-xs font-semibold text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-all"
+              href="/blog"
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${
+                pathname === '/blog' || pathname.startsWith('/blog/')
+                  ? 'bg-white/10 text-white border border-white/10 shadow-sm'
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
+              }`}
             >
               Blog
             </Link>
@@ -444,9 +453,13 @@ export default function Navbar() {
               <ArrowRight className="w-3.5 h-3.5 text-white/40" />
             </Link>
             <Link
-              href="/#blog"
+              href="/blog"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl text-xs font-semibold text-white/80 hover:text-white hover:bg-white/5 flex items-center justify-between"
+              className={`px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                pathname === '/blog' || pathname.startsWith('/blog/')
+                  ? 'bg-white/10 text-white border border-white/10'
+                  : 'text-white/80 hover:text-white hover:bg-white/5'
+              }`}
             >
               <span>Blog</span>
               <ArrowRight className="w-3.5 h-3.5 text-white/40" />

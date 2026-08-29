@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import api from '@/lib/api';
 import {
   FileEdit,
@@ -234,6 +235,14 @@ export default function BlogManagementTab({ user, onOpenCreateBlog }) {
                           ? 'Set to Draft'
                           : 'Publish Now'}
                     </button>
+
+                    <Link
+                      href={`/blog/${post.documentId || post.id}`}
+                      className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+                      title="View article"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                    </Link>
 
                     <button
                       onClick={() => {
