@@ -53,9 +53,8 @@ export default function StudentWorkspace({ user }) {
     const attrs = p.attributes || p;
     if (attrs.completed === true || attrs.isCompleted === true) {
       const l = attrs.lesson?.data?.attributes || attrs.lesson?.data || attrs.lesson;
-      if (l?.id) completedLessonIdSet.add(l.id);
-      if (l?.documentId) completedLessonIdSet.add(l.documentId);
-      if (typeof l === 'number') completedLessonIdSet.add(l);
+      const lId = l?.id ?? (typeof l === 'number' ? l : null);
+      if (lId) completedLessonIdSet.add(lId);
     }
   });
 
@@ -66,31 +65,30 @@ export default function StudentWorkspace({ user }) {
         const topEnr = enrollments[0];
         const topCourse = topEnr.course?.data?.attributes || topEnr.course || {};
         const topCourseId = topEnr.course?.id || topEnr.course?.data?.id || topCourse.id;
-        let pct = topEnr.progressPercent ?? topEnr.attributes?.progressPercent ?? 0;
         const topCourseLessons = Array.isArray(topCourse.lessons)
           ? topCourse.lessons
           : topCourse.lessons?.data || [];
         const topLessonsCount = topCourseLessons.length;
 
-        const topDoneCount = topCourseLessons.filter(
-          (l) => completedLessonIdSet.has(l.id) || (l.documentId && completedLessonIdSet.has(l.documentId))
-        ).length;
-
-        if (topLessonsCount > 0 && topDoneCount > 0) {
-          pct = Math.max(pct, Math.min(100, Math.round((topDoneCount / topLessonsCount) * 100)));
-        }
-
-        if (typeof window !== 'undefined' && user?.id && topCourseId) {
-          try {
-            const cached = localStorage.getItem(`learnsphere_completed_${user.id}_${topCourseId}`);
-            if (cached) {
-              const ids = JSON.parse(cached);
-              if (Array.isArray(ids) && topLessonsCount > 0) {
-                const calculated = Math.min(100, Math.round((ids.length / topLessonsCount) * 100));
-                pct = Math.max(pct, calculated);
+        let pct = 0;
+        if (topLessonsCount > 0) {
+          const doneCount = topCourseLessons.filter((l) => completedLessonIdSet.has(l.id)).length;
+          let cacheCount = 0;
+          if (typeof window !== 'undefined' && user?.id && topCourseId) {
+            try {
+              const cached = localStorage.getItem(`learnsphere_completed_${user.id}_${topCourseId}`);
+              if (cached) {
+                const ids = JSON.parse(cached);
+                if (Array.isArray(ids)) {
+                  cacheCount = topCourseLessons.filter((l) => ids.includes(l.id)).length;
+                }
               }
-            }
-          } catch {}
+            } catch {}
+          }
+          const verifiedDone = Math.max(doneCount, cacheCount);
+          pct = Math.min(100, Math.round((verifiedDone / topLessonsCount) * 100));
+        } else {
+          pct = topEnr.progressPercent ?? topEnr.attributes?.progressPercent ?? 0;
         }
 
         return (
@@ -175,36 +173,30 @@ export default function StudentWorkspace({ user }) {
             {enrollments.map((enr) => {
               const course = enr.course?.data?.attributes || enr.course || {};
               const courseId = enr.course?.id || enr.course?.data?.id || course.id;
-              let progressPercent = enr.progressPercent ?? enr.attributes?.progressPercent ?? 0;
               const courseLessons = Array.isArray(course.lessons)
                 ? course.lessons
                 : course.lessons?.data || [];
               const lessonsCount = courseLessons.length;
 
-              const doneCount = lessonsCount > 0
-                ? courseLessons.filter(
-                    (l) => completedLessonIdSet.has(l.id) || (l.documentId && completedLessonIdSet.has(l.documentId))
-                  ).length
-                : 0;
-
-              if (lessonsCount > 0 && doneCount > 0) {
-                progressPercent = Math.max(
-                  progressPercent,
-                  Math.min(100, Math.round((doneCount / lessonsCount) * 100))
-                );
-              }
-
-              if (typeof window !== 'undefined' && user?.id && courseId) {
-                try {
-                  const cached = localStorage.getItem(`learnsphere_completed_${user.id}_${courseId}`);
-                  if (cached) {
-                    const ids = JSON.parse(cached);
-                    if (Array.isArray(ids) && lessonsCount > 0) {
-                      const calculated = Math.min(100, Math.round((ids.length / lessonsCount) * 100));
-                      progressPercent = Math.max(progressPercent, calculated);
+              let progressPercent = 0;
+              if (lessonsCount > 0) {
+                const doneCount = courseLessons.filter((l) => completedLessonIdSet.has(l.id)).length;
+                let cacheCount = 0;
+                if (typeof window !== 'undefined' && user?.id && courseId) {
+                  try {
+                    const cached = localStorage.getItem(`learnsphere_completed_${user.id}_${courseId}`);
+                    if (cached) {
+                      const ids = JSON.parse(cached);
+                      if (Array.isArray(ids)) {
+                        cacheCount = courseLessons.filter((l) => ids.includes(l.id)).length;
+                      }
                     }
-                  }
-                } catch { }
+                  } catch {}
+                }
+                const verifiedDone = Math.max(doneCount, cacheCount);
+                progressPercent = Math.min(100, Math.round((verifiedDone / lessonsCount) * 100));
+              } else {
+                progressPercent = enr.progressPercent ?? enr.attributes?.progressPercent ?? 0;
               }
 
               return (
@@ -246,8 +238,8 @@ export default function StudentWorkspace({ user }) {
                       <div className="w-full h-1.5 bg-[#181826] rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-500 ${progressPercent === 100
-                              ? 'bg-emerald-400'
-                              : 'bg-gradient-to-r from-indigo-500 to-sky-400'
+                            ? 'bg-emerald-400'
+                            : 'bg-gradient-to-r from-indigo-500 to-sky-400'
                             }`}
                           style={{ width: `${progressPercent}%` }}
                         />
