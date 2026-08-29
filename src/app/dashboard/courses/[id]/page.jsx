@@ -98,7 +98,7 @@ export default function CourseDetailPage({ params }) {
         try {
           const filterRes = await api.get(`/api/courses?filters[documentId][$eq]=${courseId}&populate=*`);
           courseData = filterRes.data?.data?.[0] || null;
-        } catch {}
+        } catch { }
       }
 
       if (!courseData) {
@@ -127,27 +127,80 @@ export default function CourseDetailPage({ params }) {
 
       if (isStudent && user) {
         // 4. Fetch Student Enrollment
-        const enrollRes = await api.get(
-          `/api/enrollments?filters[student][id][$eq]=${user.id}&filters[course][id][$eq]=${actualCourseId}`
-        );
-        const userEnrollment = enrollRes.data?.data?.[0] || null;
+        let userEnrollment = null;
+        try {
+          const enrollRes = await api.get(
+            `/api/enrollments?filters[student][id][$eq]=${user.id}&filters[course][id][$eq]=${actualCourseId}&populate=*`
+          );
+          userEnrollment = enrollRes.data?.data?.[0] || null;
+
+          if (!userEnrollment && courseData.documentId) {
+            const enrollByDocRes = await api.get(
+              `/api/enrollments?filters[student][id][$eq]=${user.id}&filters[course][documentId][$eq]=${courseData.documentId}&populate=*`
+            );
+            userEnrollment = enrollByDocRes.data?.data?.[0] || null;
+          }
+        } catch (e) {
+          console.warn('Failed to fetch enrollment:', e);
+        }
         setEnrollment(userEnrollment);
 
-        // 5. Fetch Student Lesson Progresses
-        const progRes = await api.get(
-          `/api/lesson-progresses?filters[student][id][$eq]=${user.id}&filters[lesson][course][id][$eq]=${actualCourseId}`
-        );
-        const completed = new Set(
-          (progRes.data?.data || [])
-            .filter((p) => {
-              const attrs = p.attributes || p;
-              return attrs.completed === true || attrs.isCompleted === true;
-            })
-            .map((p) => {
-              const attrs = p.attributes || p;
-              return attrs.lesson?.id || attrs.lesson?.data?.id || attrs.lesson;
-            })
-        );
+        // 5. Fetch Student Lesson Progresses with full population
+        let userLessonProgresses = [];
+        try {
+          const progRes = await api.get(
+            `/api/lesson-progresses?filters[student][id][$eq]=${user.id}&populate=*`
+          );
+          userLessonProgresses = progRes.data?.data || [];
+        } catch (err) {
+          console.warn('Failed to fetch lesson progresses from API:', err);
+        }
+
+        const completed = new Set();
+
+        // Check localStorage cache first for immediate consistency
+        const cacheKey = `learnsphere_completed_${user.id}_${actualCourseId}`;
+        try {
+          const cached = localStorage.getItem(cacheKey);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed)) {
+              parsed.forEach((id) => completed.add(id));
+            }
+          }
+        } catch { }
+
+        // Populate from server records
+        const currentCourseLessonIds = new Set(fetchedLessons.map((l) => l.id));
+        const currentCourseDocIds = new Set(fetchedLessons.map((l) => l.documentId).filter(Boolean));
+
+        userLessonProgresses.forEach((p) => {
+          const attrs = p.attributes || p;
+          const isComp = attrs.completed === true || attrs.isCompleted === true;
+          if (isComp) {
+            const lData = attrs.lesson?.data?.attributes || attrs.lesson?.data || attrs.lesson;
+            const lId = lData?.id ?? (typeof lData === 'number' ? lData : null);
+            const lDocId = lData?.documentId;
+
+            // Only add if it belongs to this course's lessons (or if lesson info not nested, match directly)
+            if (lId && (currentCourseLessonIds.has(lId) || currentCourseLessonIds.size === 0)) {
+              completed.add(lId);
+            }
+            if (lDocId && (currentCourseDocIds.has(lDocId) || currentCourseDocIds.size === 0)) {
+              completed.add(lDocId);
+            }
+            if (lId && !currentCourseLessonIds.has(lId) && currentCourseLessonIds.size > 0) {
+              // Also add by lessonId if lesson was passed as raw ID
+              completed.add(lId);
+            }
+          }
+        });
+
+        // Keep local cache synced with verified completions
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify([...completed]));
+        } catch { }
+
         setCompletedLessonIds(completed);
 
         // 6. Fetch Student Quiz Results
@@ -183,11 +236,47 @@ export default function CourseDetailPage({ params }) {
   const handleToggleLessonComplete = async (lessonId) => {
     if (!user || !course) return;
     const actualCourseId = course.id;
-    const isCurrentlyDone = completedLessonIds.has(lessonId);
+    const isCurrentlyDone = completedLessonIds.has(lessonId) || (activeLesson?.documentId && completedLessonIds.has(activeLesson.documentId));
     const nextStatus = !isCurrentlyDone;
+
+    // Optimistically update local completed set
+    const nextCompleted = new Set(completedLessonIds);
+    if (nextStatus) {
+      nextCompleted.add(lessonId);
+      if (activeLesson?.documentId) nextCompleted.add(activeLesson.documentId);
+    } else {
+      nextCompleted.delete(lessonId);
+      if (activeLesson?.documentId) nextCompleted.delete(activeLesson.documentId);
+    }
+    setCompletedLessonIds(nextCompleted);
+
+    // Save to local cache immediately
+    const cacheKey = `learnsphere_completed_${user.id}_${actualCourseId}`;
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify([...nextCompleted]));
+    } catch { }
+
+    // Calculate new percentage based on completed lessons
+    const newCount = lessons.filter(
+      (l) => nextCompleted.has(l.id) || (l.documentId && nextCompleted.has(l.documentId))
+    ).length;
+    const newPct = lessons.length > 0 ? Math.min(100, Math.round((newCount / lessons.length) * 100)) : 0;
+
+    // Optimistically update enrollment state
+    if (enrollment) {
+      setEnrollment((prev) => ({
+        ...prev,
+        progressPercent: newPct,
+        attributes: {
+          ...(prev?.attributes || {}),
+          progressPercent: newPct,
+        },
+      }));
+    }
 
     setSavingProgress(true);
     try {
+      // 1. Post lesson progress to Strapi
       await api.post('/api/lesson-progresses', {
         data: {
           student: user.id,
@@ -196,17 +285,32 @@ export default function CourseDetailPage({ params }) {
         },
       });
 
-      // Update local completed set
-      setCompletedLessonIds((prev) => {
-        const next = new Set(prev);
-        if (nextStatus) next.add(lessonId);
-        else next.delete(lessonId);
-        return next;
-      });
+      // 2. Ensure enrollment exists or update its percentage
+      if (enrollment) {
+        const enrollId = enrollment.documentId || enrollment.id;
+        try {
+          await api.put(`/api/enrollments/${enrollId}`, {
+            data: { progressPercent: newPct },
+          });
+        } catch { }
+      } else {
+        try {
+          const newEnrRes = await api.post('/api/enrollments', {
+            data: {
+              student: user.id,
+              course: actualCourseId,
+              progressPercent: newPct,
+            },
+          });
+          if (newEnrRes.data?.data) {
+            setEnrollment(newEnrRes.data.data);
+          }
+        } catch { }
+      }
 
-      // Refresh enrollment record to get live recalculated percentage
+      // 3. Refresh enrollment from server
       const enrollRes = await api.get(
-        `/api/enrollments?filters[student][id][$eq]=${user.id}&filters[course][id][$eq]=${actualCourseId}`
+        `/api/enrollments?filters[student][id][$eq]=${user.id}&filters[course][id][$eq]=${actualCourseId}&populate=*`
       );
       if (enrollRes.data?.data?.[0]) {
         setEnrollment(enrollRes.data.data[0]);
@@ -272,14 +376,25 @@ export default function CourseDetailPage({ params }) {
   }
 
   const courseAttrs = course.attributes || course;
-  const progressPercent = enrollment
-    ? enrollment.attributes?.progressPercent ?? enrollment.progressPercent ?? 0
+
+  const completedLessonsCount = lessons.filter(
+    (l) => completedLessonIds.has(l.id) || (l.documentId && completedLessonIds.has(l.documentId))
+  ).length;
+
+  const calculatedPercent = lessons.length > 0
+    ? Math.min(100, Math.round((completedLessonsCount / lessons.length) * 100))
     : 0;
+
+  const progressPercent = enrollment
+    ? Math.max(calculatedPercent, enrollment.attributes?.progressPercent ?? enrollment.progressPercent ?? 0)
+    : calculatedPercent;
 
   const currentLessonIdx = lessons.findIndex((l) => l.id === activeLesson?.id);
   const prevLesson = currentLessonIdx > 0 ? lessons[currentLessonIdx - 1] : null;
   const nextLesson = currentLessonIdx < lessons.length - 1 ? lessons[currentLessonIdx + 1] : null;
-  const isLessonDone = activeLesson ? completedLessonIds.has(activeLesson.id) : false;
+  const isLessonDone = activeLesson
+    ? completedLessonIds.has(activeLesson.id) || (activeLesson.documentId && completedLessonIds.has(activeLesson.documentId))
+    : false;
 
   const activeLessonAttrs = activeLesson ? activeLesson.attributes || activeLesson : null;
   const youtubeEmbed = activeLessonAttrs?.videoUrl
@@ -432,8 +547,8 @@ export default function CourseDetailPage({ params }) {
                             onClick={() => handleToggleLessonComplete(activeLesson.id)}
                             disabled={savingProgress}
                             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md active:scale-95 shrink-0 ${isLessonDone
-                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                                : 'bg-white text-[#181826] hover:bg-white/90 shadow-white/10'
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                              : 'bg-white text-[#181826] hover:bg-white/90 shadow-white/10'
                               }`}
                           >
                             {isLessonDone ? (
@@ -511,7 +626,7 @@ export default function CourseDetailPage({ params }) {
                         <h3 className="text-xs font-bold uppercase tracking-wider text-white">Course Curriculum</h3>
                       </div>
                       <span className="text-xs font-mono text-white/50">
-                        {completedLessonIds.size}/{lessons.length} Done
+                        {completedLessonsCount}/{lessons.length} Done
                       </span>
                     </div>
 
@@ -519,7 +634,7 @@ export default function CourseDetailPage({ params }) {
                     <div className="space-y-2 max-h-[480px] overflow-y-auto pr-1">
                       {lessons.map((lesson, idx) => {
                         const lAttrs = lesson.attributes || lesson;
-                        const isDone = completedLessonIds.has(lesson.id);
+                        const isDone = completedLessonIds.has(lesson.id) || (lesson.documentId && completedLessonIds.has(lesson.documentId));
                         const isSelected = activeLesson?.id === lesson.id;
 
                         return (
@@ -527,10 +642,10 @@ export default function CourseDetailPage({ params }) {
                             key={lesson.id}
                             onClick={() => setActiveLesson(lesson)}
                             className={`w-full text-left p-3 rounded-xl border text-xs transition-all flex items-center justify-between gap-3 ${isSelected
-                                ? 'bg-indigo-500/20 text-white border-indigo-500/50 shadow-md shadow-indigo-500/10'
-                                : isDone
-                                  ? 'bg-[#181826] text-white/80 border-white/5 hover:border-white/15'
-                                  : 'bg-[#181826] text-white/60 border-white/5 hover:text-white'
+                              ? 'bg-indigo-500/20 text-white border-indigo-500/50 shadow-md shadow-indigo-500/10'
+                              : isDone
+                                ? 'bg-[#181826] text-white/80 border-white/5 hover:border-white/15'
+                                : 'bg-[#181826] text-white/60 border-white/5 hover:text-white'
                               }`}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
@@ -612,8 +727,8 @@ export default function CourseDetailPage({ params }) {
               <button
                 onClick={() => setEducatorTab('curriculum')}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${educatorTab === 'curriculum'
-                    ? 'bg-white text-[#181826]'
-                    : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
+                  ? 'bg-white text-[#181826]'
+                  : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
                   }`}
               >
                 <Layers className="w-4 h-4" />
@@ -623,8 +738,8 @@ export default function CourseDetailPage({ params }) {
               <button
                 onClick={() => setEducatorTab('quizzes')}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${educatorTab === 'quizzes'
-                    ? 'bg-white text-[#181826]'
-                    : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
+                  ? 'bg-white text-[#181826]'
+                  : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
                   }`}
               >
                 <Award className="w-4 h-4" />
@@ -634,8 +749,8 @@ export default function CourseDetailPage({ params }) {
               <button
                 onClick={() => setEducatorTab('students')}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${educatorTab === 'students'
-                    ? 'bg-white text-[#181826]'
-                    : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
+                  ? 'bg-white text-[#181826]'
+                  : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
                   }`}
               >
                 <Users className="w-4 h-4" />
@@ -829,8 +944,8 @@ export default function CourseDetailPage({ params }) {
                                 </td>
                                 <td className="px-5 py-3.5 text-right">
                                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${pct >= 100
-                                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                      : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                    : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
                                     }`}>
                                     {pct >= 100 ? 'Finished' : 'In Progress'}
                                   </span>
