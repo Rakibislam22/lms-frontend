@@ -30,7 +30,7 @@ export default function BlogDetailPage() {
   const [copied, setCopied] = useState(false);
 
   const roleType = user?.role?.type || 'student';
-  const canManageBlog = roleType === 'admin' || roleType === 'content_manager';
+  const canManageBlog = roleType === 'admin' || roleType === 'content_manager' || roleType === 'instructor';
 
   useEffect(() => {
     if (!postId) return;

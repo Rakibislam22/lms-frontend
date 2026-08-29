@@ -25,7 +25,7 @@ export default function BlogPage() {
   const [selectedTopic, setSelectedTopic] = useState('All');
 
   const roleType = user?.role?.type || 'student';
-  const canManageBlog = roleType === 'admin' || roleType === 'content_manager';
+  const canManageBlog = roleType === 'admin' || roleType === 'content_manager' || roleType === 'instructor';
 
   useEffect(() => {
     const fetchBlogPosts = async () => {

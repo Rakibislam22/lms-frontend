@@ -156,8 +156,8 @@ export default function Navbar() {
             <Link
               href="/blog"
               className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${pathname === '/blog' || pathname.startsWith('/blog/')
-                  ? 'bg-white/10 text-white border border-white/10 shadow-sm'
-                  : 'text-white/70 hover:text-white hover:bg-white/5'
+                ? 'bg-white/10 text-white border border-white/10 shadow-sm'
+                : 'text-white/70 hover:text-white hover:bg-white/5'
                 }`}
             >
               Blog
@@ -212,13 +212,22 @@ export default function Navbar() {
                   )}
 
                   {roleType === 'instructor' && (
-                    <button
-                      onClick={openCreateCourse}
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all shadow-sm shadow-white/10 active:scale-95"
-                    >
-                      <PlusCircle className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Create Course</span>
-                    </button>
+                    <>
+                      <button
+                        onClick={openCreateCourse}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all shadow-sm shadow-white/10 active:scale-95"
+                      >
+                        <PlusCircle className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Create Course</span>
+                      </button>
+                      <button
+                        onClick={openCreateBlog}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1f1f33] text-white font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
+                      >
+                        <FileEdit className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>New Blog</span>
+                      </button>
+                    </>
                   )}
 
                   {roleType === 'student' && (
@@ -347,20 +356,37 @@ export default function Navbar() {
                         )}
 
                         {roleType === 'instructor' && (
-                          <Link
-                            href="/dashboard?tab=courses"
-                            onClick={() => {
-                              setProfileMenuOpen(false);
-                              window.dispatchEvent(new CustomEvent('switch-dashboard-tab', { detail: 'courses' }));
-                            }}
-                            className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 text-xs text-white/80 hover:text-white transition-colors"
-                          >
-                            <span className="flex items-center gap-2 font-medium">
-                              <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
-                              <span>My Courses</span>
-                            </span>
-                            <ArrowRight className="w-3 h-3 text-white/40" />
-                          </Link>
+                          <>
+                            <Link
+                              href="/dashboard?tab=courses"
+                              onClick={() => {
+                                setProfileMenuOpen(false);
+                                window.dispatchEvent(new CustomEvent('switch-dashboard-tab', { detail: 'courses' }));
+                              }}
+                              className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 text-xs text-white/80 hover:text-white transition-colors"
+                            >
+                              <span className="flex items-center gap-2 font-medium">
+                                <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+                                <span>My Courses</span>
+                              </span>
+                              <ArrowRight className="w-3 h-3 text-white/40" />
+                            </Link>
+
+                            <Link
+                              href="/dashboard?tab=blogs"
+                              onClick={() => {
+                                setProfileMenuOpen(false);
+                                window.dispatchEvent(new CustomEvent('switch-dashboard-tab', { detail: 'blogs' }));
+                              }}
+                              className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 text-xs text-white/80 hover:text-white transition-colors"
+                            >
+                              <span className="flex items-center gap-2 font-medium">
+                                <FileEdit className="w-3.5 h-3.5 text-emerald-400" />
+                                <span>Blog & Publications</span>
+                              </span>
+                              <ArrowRight className="w-3 h-3 text-white/40" />
+                            </Link>
+                          </>
                         )}
 
                         {roleType === 'admin' && (
@@ -463,8 +489,8 @@ export default function Navbar() {
               href="/blog"
               onClick={() => setMobileMenuOpen(false)}
               className={`px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${pathname === '/blog' || pathname.startsWith('/blog/')
-                  ? 'bg-white/10 text-white border border-white/10'
-                  : 'text-white/80 hover:text-white hover:bg-white/5'
+                ? 'bg-white/10 text-white border border-white/10'
+                : 'text-white/80 hover:text-white hover:bg-white/5'
                 }`}
             >
               <span>Blog</span>
@@ -519,7 +545,7 @@ export default function Navbar() {
                       <span>Create Course</span>
                     </button>
                   )}
-                  {(roleType === 'admin' || roleType === 'content_manager') && (
+                  {(roleType === 'admin' || roleType === 'content_manager' || roleType === 'instructor') && (
                     <button
                       onClick={() => {
                         setMobileMenuOpen(false);
@@ -527,7 +553,7 @@ export default function Navbar() {
                       }}
                       className="py-2.5 rounded-xl bg-[#1f1f33] text-white font-medium text-xs border border-white/10 flex items-center justify-center gap-1.5"
                     >
-                      <FileEdit className="w-3.5 h-3.5" />
+                      <FileEdit className="w-3.5 h-3.5 text-emerald-400" />
                       <span>New Blog</span>
                     </button>
                   )}
