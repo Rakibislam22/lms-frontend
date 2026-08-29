@@ -409,7 +409,7 @@ export default function CourseDetailPage({ params }) {
     <ProtectedRoute>
       <div className="min-h-screen bg-[#181826] text-white pb-20">
         {/* Top Sticky Navigation Bar */}
-        <div className="sticky top-18 z-40 bg-[#181826]/90 backdrop-blur-md border-b border-white/10">
+        <div className="sticky top-18 z-40 bg-[#181826]/90 backdrop-blur-md ">
           <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Link
@@ -736,8 +736,8 @@ export default function CourseDetailPage({ params }) {
                 <button
                   onClick={() => setEducatorTab('curriculum')}
                   className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${educatorTab === 'curriculum'
-                      ? 'bg-white text-[#181826]'
-                      : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
+                    ? 'bg-white text-[#181826]'
+                    : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
                     }`}
                 >
                   <Layers className="w-4 h-4 shrink-0" />
@@ -748,8 +748,8 @@ export default function CourseDetailPage({ params }) {
                 <button
                   onClick={() => setEducatorTab('quizzes')}
                   className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${educatorTab === 'quizzes'
-                      ? 'bg-white text-[#181826]'
-                      : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
+                    ? 'bg-white text-[#181826]'
+                    : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
                     }`}
                 >
                   <Award className="w-4 h-4 shrink-0" />
@@ -760,8 +760,8 @@ export default function CourseDetailPage({ params }) {
                 <button
                   onClick={() => setEducatorTab('students')}
                   className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${educatorTab === 'students'
-                      ? 'bg-white text-[#181826]'
-                      : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
+                    ? 'bg-white text-[#181826]'
+                    : 'bg-[#1f1f33] text-white/60 hover:text-white border border-white/5'
                     }`}
                 >
                   <Users className="w-4 h-4 shrink-0" />

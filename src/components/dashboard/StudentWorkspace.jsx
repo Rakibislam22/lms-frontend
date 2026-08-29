@@ -295,7 +295,7 @@ export default function StudentWorkspace({ user }) {
                   </div>
                   <div className="text-[11px] text-white/50 flex items-center justify-between">
                     <span>Score: {score} of {total}</span>
-                    <span>Passed ✓</span>
+                    {score >= total * 0.33 ? <span>Passed ✓</span> : <span className="text-red-300">Failed ✗</span>}
                   </div>
                 </div>
               );

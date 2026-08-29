@@ -136,8 +136,8 @@ export default function RegisterPage() {
                     type="button"
                     onClick={() => setSelectedRole(r.type)}
                     className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between space-y-2 ${isSelected
-                        ? `${r.activeBg} ${r.activeBorder} ring-1 ${r.ringColor}`
-                        : 'bg-[#181826] border-white/10 hover:border-white/20 text-white/70'
+                      ? `${r.activeBg} ${r.activeBorder} ring-1 ${r.ringColor}`
+                      : 'bg-[#181826] border-white/10 hover:border-white/20 text-white/70'
                       }`}
                   >
                     <div className="flex items-center justify-between w-full">
