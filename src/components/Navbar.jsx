@@ -111,9 +111,9 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-18">
-          {/* 1. Brand Logo & Nav Links */}
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-3 group">
+          {/* 1. Brand Logo (Left) */}
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center gap-3 group shrink-0">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 p-[1px] shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/30 transition-all">
                 <div className="w-full h-full bg-[#181826] rounded-[11px] flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
@@ -127,36 +127,36 @@ export default function Navbar() {
                 <span className="text-[10px] text-white/40 -mt-0.5 tracking-wide">Next-Gen Education</span>
               </div>
             </Link>
-
-            {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-1">
-              <Link
-                href="/courses"
-                className="px-3 py-1.5 text-xs font-medium text-white/70 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
-              >
-                All Courses
-              </Link>
-              <Link
-                href="/#features"
-                className="px-3 py-1.5 text-xs font-medium text-white/70 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
-              >
-                Platform
-              </Link>
-              <Link
-                href="/#blog"
-                className="px-3 py-1.5 text-xs font-medium text-white/70 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
-              >
-                Tech Blog
-              </Link>
-            </nav>
           </div>
 
-          {/* 2. Right Action Hub */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* 2. Middle Navigation Links (All Courses & Blog Centered) */}
+          <nav className="hidden md:flex items-center justify-center gap-1 lg:gap-2">
+            <Link
+              href="/courses"
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${
+                pathname === '/courses'
+                  ? 'bg-white/10 text-white border border-white/10 shadow-sm'
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              All Courses
+            </Link>
+            <Link
+              href="/#blog"
+              className="px-3.5 py-1.5 text-xs font-semibold text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-all"
+            >
+              Blog
+            </Link>
+          </nav>
+
+          {/* 3. Right Action Hub (Responsive) */}
+          <div className="flex items-center gap-2 sm:gap-3">
             {loading ? (
-              <div className="w-32 h-9 bg-white/5 rounded-xl animate-pulse" />
+              <div className="w-24 sm:w-32 h-9 bg-white/5 rounded-xl animate-pulse" />
             ) : user ? (
-              <div className="flex items-center gap-2.5">
+              <>
+                {/* Desktop Action Buttons */}
+                <div className="hidden md:flex items-center gap-2.5">
                 {/* Role Specific Action Buttons In Navbar */}
                 {roleType === 'admin' && (
                   <>
@@ -226,9 +226,10 @@ export default function Navbar() {
                     <span>Dashboard</span>
                   </Link>
                 )}
+                </div>
 
-                {/* 3. Role-Styled Profile Logo Icon Only (Name removed from navbar row) */}
-                <div className="relative pl-1 border-l border-white/10" ref={profileRef}>
+                {/* 3. Role-Styled Profile Logo Icon Only (Visible on Desktop & Mobile) */}
+                <div className="relative pl-1 sm:border-l sm:border-white/10" ref={profileRef}>
                   <button
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                     className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs border transition-all duration-200 select-none shadow-md ${currentRole.avatarClass
@@ -398,9 +399,9 @@ export default function Navbar() {
                     </div>
                   )}
                 </div>
-              </div>
+              </>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-2">
                 <Link
                   href="/login"
                   className="px-4 py-2 rounded-xl text-xs font-medium text-white/80 hover:text-white hover:bg-white/5 transition-all"
@@ -416,16 +417,17 @@ export default function Navbar() {
                 </Link>
               </div>
             )}
-          </div>
 
-          {/* Mobile menu toggle */}
-          <div className="flex md:hidden items-center gap-2">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-[#1f1f33] text-white/80 hover:text-white border border-white/10"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+            {/* Mobile menu toggle */}
+            <div className="flex md:hidden items-center">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-lg bg-[#1f1f33] text-white/80 hover:text-white border border-white/10"
+                aria-label="Toggle navigation menu"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -437,23 +439,18 @@ export default function Navbar() {
             <Link
               href="/courses"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-lg text-xs font-medium text-white/80 hover:text-white hover:bg-white/5"
+              className="px-3.5 py-2.5 rounded-xl text-xs font-semibold text-white/80 hover:text-white hover:bg-white/5 flex items-center justify-between"
             >
-              Explore Courses
-            </Link>
-            <Link
-              href="/#features"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-lg text-xs font-medium text-white/80 hover:text-white hover:bg-white/5"
-            >
-              Features
+              <span>All Courses</span>
+              <ArrowRight className="w-3.5 h-3.5 text-white/40" />
             </Link>
             <Link
               href="/#blog"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-lg text-xs font-medium text-white/80 hover:text-white hover:bg-white/5"
+              className="px-3.5 py-2.5 rounded-xl text-xs font-semibold text-white/80 hover:text-white hover:bg-white/5 flex items-center justify-between"
             >
-              Blog
+              <span>Blog</span>
+              <ArrowRight className="w-3.5 h-3.5 text-white/40" />
             </Link>
           </nav>
 
