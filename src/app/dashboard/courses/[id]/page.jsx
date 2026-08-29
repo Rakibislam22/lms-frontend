@@ -409,81 +409,83 @@ export default function CourseDetailPage({ params }) {
     <ProtectedRoute>
       <div className="min-h-screen bg-[#181826] text-white pb-20">
         {/* Top Sticky Navigation Bar */}
-        <div className="sticky top-18 z-40 bg-[#181826]/90 backdrop-blur-md border-b border-white/10 px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-xs font-semibold border border-white/10 transition-all"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </Link>
-            <div className="h-4 w-px bg-white/10" />
-            <div>
-              <h2 className="text-sm sm:text-base font-bold text-white leading-tight line-clamp-1">
-                {courseAttrs.title}
-              </h2>
-              <span className="text-[11px] text-white/50">
-                {lessons.length} {lessons.length === 1 ? 'Lesson' : 'Lessons'} • {quizzes.length} {quizzes.length === 1 ? 'Quiz' : 'Quizzes'}
-              </span>
-            </div>
-          </div>
-
-          {/* Right Header Status / Action */}
-          {isStudent ? (
-            enrollment ? (
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3 bg-[#1f1f33] px-3.5 py-1.5 rounded-xl border border-white/10">
-                  <div className="w-24 sm:w-36 h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-sky-400 to-indigo-500 rounded-full transition-all duration-500"
-                      style={{ width: `${progressPercent}%` }}
-                    />
-                  </div>
-                  <span className="text-xs font-bold text-white">{progressPercent}%</span>
-                </div>
+        <div className="sticky top-18 z-40 bg-[#181826]/90 backdrop-blur-md border-b border-white/10">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-xs font-semibold border border-white/10 transition-all"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Link>
+              <div className="h-4 w-px bg-white/10" />
+              <div>
+                <h2 className="text-sm sm:text-base font-bold text-white leading-tight line-clamp-1">
+                  {courseAttrs.title}
+                </h2>
+                <span className="text-[11px] text-white/50">
+                  {lessons.length} {lessons.length === 1 ? 'Lesson' : 'Lessons'} • {quizzes.length} {quizzes.length === 1 ? 'Quiz' : 'Quizzes'}
+                </span>
               </div>
-            ) : (
-              <button
-                onClick={handleEnrollNow}
-                disabled={savingProgress}
-                className="px-4 py-2 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all shadow-md shadow-white/10"
-              >
-                Enroll to Start Learning
-              </button>
-            )
-          ) : (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsLessonManagerOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all"
-              >
-                <PlusCircle className="w-3.5 h-3.5 text-indigo-600" />
-                <span>Add Lesson</span>
-              </button>
-
-              <button
-                onClick={() => setIsQuizManagerOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1f1f33] text-white font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
-              >
-                <Award className="w-3.5 h-3.5 text-amber-400" />
-                <span>Manage Quiz</span>
-              </button>
-
-              <button
-                onClick={() => setIsEditCourseOpen(true)}
-                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10"
-                title="Edit Course Metadata"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-              </button>
             </div>
-          )}
+
+            {/* Right Header Status / Action */}
+            {isStudent ? (
+              enrollment ? (
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 bg-[#1f1f33] px-3.5 py-1.5 rounded-xl border border-white/10">
+                    <div className="w-24 sm:w-36 h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-sky-400 to-indigo-500 rounded-full transition-all duration-500"
+                        style={{ width: `${progressPercent}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-bold text-white">{progressPercent}%</span>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={handleEnrollNow}
+                  disabled={savingProgress}
+                  className="px-4 py-2 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all shadow-md shadow-white/10"
+                >
+                  Enroll to Start Learning
+                </button>
+              )
+            ) : (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsLessonManagerOpen(true)}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all"
+                >
+                  <PlusCircle className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>Add Lesson</span>
+                </button>
+
+                <button
+                  onClick={() => setIsQuizManagerOpen(true)}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#1f1f33] text-white font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
+                >
+                  <Award className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Manage Quiz</span>
+                </button>
+
+                <button
+                  onClick={() => setIsEditCourseOpen(true)}
+                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10"
+                  title="Edit Course Metadata"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* VIEW A: STUDENT LEARNING STUDIO */}
         {isStudent ? (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6">
             {!enrollment ? (
               <div className="p-12 text-center rounded-3xl bg-[#1f1f33]/70 border border-white/10 space-y-4 max-w-2xl mx-auto my-12 backdrop-blur-xl">
                 <BookOpen className="w-12 h-12 text-indigo-400 mx-auto" />
@@ -727,7 +729,7 @@ export default function CourseDetailPage({ params }) {
           </div>
         ) : (
           /* VIEW B: EDUCATOR (INSTRUCTOR / ADMIN / CONTENT MANAGER) WORKSPACE */
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
             {/* Educator Subtabs (Responsive Navigation) */}
             <div className="border-b border-white/10 pb-3">
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1 -mb-1">
