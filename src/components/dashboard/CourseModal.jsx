@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
+import useScrollLock from '@/hooks/useScrollLock';
 import { X, BookOpen, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function CourseModal({ isOpen, onClose, course, onSaved }) {
+  useScrollLock(isOpen);
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);

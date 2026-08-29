@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
+import useScrollLock from '@/hooks/useScrollLock';
 import { X, FileEdit, Sparkles, AlertCircle, Image as ImageIcon } from 'lucide-react';
 
 export default function BlogModal({ isOpen, onClose, post, onSaved }) {
+  useScrollLock(isOpen);
+
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [coverImageUrl, setCoverImageUrl] = useState('');

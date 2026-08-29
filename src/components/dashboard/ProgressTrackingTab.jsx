@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
+import useScrollLock from '@/hooks/useScrollLock';
 import {
   TrendingUp,
   Search,
@@ -25,6 +26,8 @@ export default function ProgressTrackingTab({ user }) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudentQuizData, setSelectedStudentQuizData] = useState(null);
+
+  useScrollLock(Boolean(selectedStudentQuizData));
 
   const roleType = user?.role?.type || 'student';
 

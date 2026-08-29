@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
+import useScrollLock from '@/hooks/useScrollLock';
 import {
   X,
   HelpCircle,
@@ -17,6 +18,8 @@ import {
 } from 'lucide-react';
 
 export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved, onQuizzesUpdated }) {
+  useScrollLock(isOpen);
+
   const [title, setTitle] = useState('');
   const [questions, setQuestions] = useState([
     {

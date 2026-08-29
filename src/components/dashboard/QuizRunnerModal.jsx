@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
+import useScrollLock from '@/hooks/useScrollLock';
 import {
   X,
   Award,
@@ -15,6 +16,8 @@ import {
 } from 'lucide-react';
 
 export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted, onQuizSubmitted }) {
+  useScrollLock(isOpen);
+
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [submitting, setSubmitting] = useState(false);

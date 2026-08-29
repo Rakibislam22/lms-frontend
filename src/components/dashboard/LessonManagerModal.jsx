@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
+import useScrollLock from '@/hooks/useScrollLock';
 import {
   X,
   Layers,
@@ -17,6 +18,8 @@ import {
 } from 'lucide-react';
 
 export default function LessonManagerModal({ isOpen, onClose, course, onLessonsUpdated }) {
+  useScrollLock(isOpen);
+
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingLessonId, setEditingLessonId] = useState(null);
