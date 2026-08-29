@@ -240,11 +240,10 @@ export default function ProgressTrackingTab({ user }) {
                                   isAvgPassed,
                                 })
                               }
-                              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all hover:scale-105 active:scale-95 shadow-sm ${
-                                isAvgPassed
+                              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all hover:scale-105 active:scale-95 shadow-sm ${isAvgPassed
                                   ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20'
                                   : 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20'
-                              }`}
+                                }`}
                               title="Click to view all quiz results and detailed question audit"
                             >
                               <Award className="w-3.5 h-3.5 shrink-0" />
@@ -341,12 +340,12 @@ export default function ProgressTrackingTab({ user }) {
                 const quizTitle = fullQuiz?.title || rAttrs.quiz?.title || 'Assessment Quiz';
                 const formattedDate = rAttrs.createdAt
                   ? new Date(rAttrs.createdAt).toLocaleString(undefined, {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
                   : 'N/A';
 
                 return (
@@ -368,11 +367,10 @@ export default function ProgressTrackingTab({ user }) {
 
                       <div className="flex items-center gap-2">
                         <span
-                          className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${
-                            isPassed
+                          className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${isPassed
                               ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
                               : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
-                          }`}
+                            }`}
                         >
                           Score: {score}/{total} ({percent}%) {isPassed ? '✓ Passed' : '✗ Needs Practice'}
                         </span>
@@ -410,18 +408,16 @@ export default function ProgressTrackingTab({ user }) {
                           return (
                             <div
                               key={qIdx}
-                              className={`p-3 rounded-xl border text-xs space-y-1.5 ${
-                                isCorrect ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-rose-500/5 border-rose-500/20'
-                              }`}
+                              className={`p-3 rounded-xl border text-xs space-y-1.5 ${isCorrect ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-rose-500/5 border-rose-500/20'
+                                }`}
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <span className="font-semibold text-white">
                                   Q{qIdx + 1}: {q.question}
                                 </span>
                                 <span
-                                  className={`text-[10px] font-bold px-1.5 py-0.2 rounded shrink-0 ${
-                                    isCorrect ? 'text-emerald-400' : 'text-rose-400'
-                                  }`}
+                                  className={`text-[10px] font-bold px-1.5 py-0.2 rounded shrink-0 ${isCorrect ? 'text-emerald-400' : 'text-rose-400'
+                                    }`}
                                 >
                                   {isCorrect ? 'Correct ✓' : 'Incorrect ✗'}
                                 </span>
