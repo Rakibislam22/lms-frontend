@@ -67,26 +67,26 @@ export default function DashboardShell() {
     switch (roleType) {
       case 'admin':
         return [
-          { key: 'courses', label: 'All Courses & Hubs', icon: BookOpen },
-          { key: 'users', label: 'Users & Roles', icon: Users },
-          { key: 'blogs', label: 'Tech Blog & Publications', icon: FileEdit },
-          { key: 'progress', label: 'Student Progress Analytics', icon: TrendingUp },
+          { key: 'courses', label: 'All Courses & Hubs', shortLabel: 'Courses', icon: BookOpen },
+          { key: 'users', label: 'Users & Roles', shortLabel: 'Users', icon: Users },
+          { key: 'blogs', label: 'Tech Blog & Publications', shortLabel: 'Blogs', icon: FileEdit },
+          { key: 'progress', label: 'Student Progress Analytics', shortLabel: 'Analytics', icon: TrendingUp },
         ];
       case 'content_manager':
         return [
-          { key: 'courses', label: 'Course Library', icon: BookOpen },
-          { key: 'blogs', label: 'Tech Blog & Publications', icon: FileEdit },
-          { key: 'progress', label: 'Student Progress Analytics', icon: TrendingUp },
+          { key: 'courses', label: 'Course Library', shortLabel: 'Courses', icon: BookOpen },
+          { key: 'blogs', label: 'Tech Blog & Publications', shortLabel: 'Blogs', icon: FileEdit },
+          { key: 'progress', label: 'Student Progress Analytics', shortLabel: 'Analytics', icon: TrendingUp },
         ];
       case 'instructor':
         return [
-          { key: 'courses', label: 'My Courses & Curricula', icon: BookOpen },
-          { key: 'progress', label: 'Enrolled Student Analytics', icon: TrendingUp },
+          { key: 'courses', label: 'My Courses & Curricula', shortLabel: 'My Courses', icon: BookOpen },
+          { key: 'progress', label: 'Enrolled Student Analytics', shortLabel: 'Analytics', icon: TrendingUp },
         ];
       case 'student':
       default:
         return [
-          { key: 'my-learning', label: 'My Learning & Enrolled Courses', icon: Award },
+          { key: 'my-learning', label: 'My Learning & Enrolled Courses', shortLabel: 'My Learning', icon: Award },
         ];
     }
   };
@@ -102,26 +102,32 @@ export default function DashboardShell() {
         {/* 1. Primary Focal Section: Dynamic Role Stats Overview (Welcome Card Removed) */}
         <StatsOverview user={user} statsTrigger={combinedTrigger} />
 
-        {/* 2. Segmented Workspace Tabs Navigation */}
+        {/* 2. Segmented Workspace Tabs Navigation (Responsive Dashboard Navbar) */}
         {tabs.length > 1 && (
-          <div className="flex items-center gap-2 border-b border-white/10 pb-4 mb-8 overflow-x-auto">
-            {tabs.map((tab) => {
-              const TabIcon = tab.icon;
-              const isActive = activeTab === tab.key;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${isActive
-                      ? 'bg-white text-[#181826] shadow-lg shadow-white/10'
-                      : 'bg-[#1f1f33] text-white/70 hover:text-white hover:bg-[#262640] border border-white/5'
-                    }`}
-                >
-                  <TabIcon className={`w-4 h-4 ${isActive ? 'text-[#181826]' : 'text-white/50'}`} />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
+          <div className="border-b border-white/10 pb-4 mb-8">
+            <nav
+              aria-label="Dashboard Workspace Tabs"
+              className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1 -mb-1"
+            >
+              {tabs.map((tab) => {
+                const TabIcon = tab.icon;
+                const isActive = activeTab === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 select-none ${isActive
+                        ? 'bg-white text-[#181826] shadow-lg shadow-white/10'
+                        : 'bg-[#1f1f33] text-white/70 hover:text-white hover:bg-[#262640] border border-white/5'
+                      }`}
+                  >
+                    <TabIcon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#181826]' : 'text-white/50'}`} />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                    <span className="sm:hidden">{tab.shortLabel || tab.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
           </div>
         )}
 
