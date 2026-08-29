@@ -17,6 +17,9 @@ import {
   Check
 } from 'lucide-react';
 
+import { toast } from 'react-toastify';
+import { confirmDelete } from '@/lib/alerts';
+
 export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved, onQuizzesUpdated }) {
   useScrollLock(isOpen);
 
@@ -157,9 +160,16 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved,
   };
 
   const handleDeleteQuiz = async (quizId) => {
-    if (!confirm('Are you sure you want to delete this quiz?')) return;
+    const isConfirmed = await confirmDelete({
+      title: 'Delete Quiz?',
+      text: 'Are you sure you want to delete this quiz? Student quiz results will remain archived.',
+      confirmText: 'Yes, delete quiz',
+    });
+    if (!isConfirmed) return;
+
     try {
       await api.delete(`/api/quizzes/${quizId}`);
+      toast.success('Quiz deleted successfully.');
       if (editingQuiz && (editingQuiz.id === quizId || editingQuiz.documentId === quizId)) {
         resetToNew();
       }
@@ -168,7 +178,7 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved,
       if (onQuizzesUpdated) onQuizzesUpdated();
     } catch (err) {
       console.error('Failed to delete quiz:', err);
-      alert('Failed to delete quiz.');
+      toast.error('Failed to delete quiz.');
     }
   };
 
@@ -220,6 +230,7 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved,
             questions: formattedQuestions,
           },
         });
+        toast.success('Quiz updated successfully! 🎯');
       } else {
         // Create new quiz
         await api.post('/api/quizzes', {
@@ -229,6 +240,7 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved,
             questions: formattedQuestions,
           },
         });
+        toast.success('Quiz published successfully! 🎯');
       }
 
       await fetchExistingQuizzes();
@@ -238,7 +250,9 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved,
       onClose();
     } catch (err) {
       console.error('Failed to save quiz:', err);
-      setError(err.response?.data?.error?.message || 'Failed to save quiz. Verify your permissions.');
+      const errMsg = err.response?.data?.error?.message || 'Failed to save quiz. Verify your permissions.';
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }

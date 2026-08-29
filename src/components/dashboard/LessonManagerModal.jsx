@@ -17,6 +17,9 @@ import {
   Sparkles
 } from 'lucide-react';
 
+import { toast } from 'react-toastify';
+import { confirmDelete } from '@/lib/alerts';
+
 export default function LessonManagerModal({ isOpen, onClose, course, onLessonsUpdated }) {
   useScrollLock(isOpen);
 
@@ -77,14 +80,21 @@ export default function LessonManagerModal({ isOpen, onClose, course, onLessonsU
   };
 
   const handleDeleteLesson = async (lessonId) => {
-    if (!confirm('Are you sure you want to delete this lesson?')) return;
+    const isConfirmed = await confirmDelete({
+      title: 'Delete Lesson?',
+      text: 'Are you sure you want to delete this lesson? Students will no longer see it.',
+      confirmText: 'Yes, delete lesson',
+    });
+    if (!isConfirmed) return;
+
     try {
       await api.delete(`/api/lessons/${lessonId}`);
+      toast.success('Lesson deleted successfully.');
       await fetchLessons();
       if (onLessonsUpdated) onLessonsUpdated();
     } catch (err) {
       console.error('Failed to delete lesson:', err);
-      alert(err.response?.data?.error?.message || 'Failed to delete lesson.');
+      toast.error(err.response?.data?.error?.message || 'Failed to delete lesson.');
     }
   };
 
@@ -111,8 +121,10 @@ export default function LessonManagerModal({ isOpen, onClose, course, onLessonsU
 
       if (editingLessonId) {
         await api.put(`/api/lessons/${editingLessonId}`, payload);
+        toast.success('Lesson updated successfully! 📚');
       } else {
         await api.post('/api/lessons', payload);
+        toast.success('Lesson created successfully! 📚');
       }
 
       resetForm();
@@ -121,6 +133,7 @@ export default function LessonManagerModal({ isOpen, onClose, course, onLessonsU
     } catch (err) {
       console.error('Failed to save lesson:', err);
       setError(err.response?.data?.error?.message || 'Failed to save lesson.');
+      toast.error(err.response?.data?.error?.message || 'Failed to save lesson.');
     } finally {
       setSaving(false);
     }

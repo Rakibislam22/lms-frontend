@@ -17,6 +17,8 @@ import {
   LayoutDashboard
 } from 'lucide-react';
 
+import { toast } from 'react-toastify';
+
 export default function CoursesPage() {
   const { user } = useAuth();
   const router = useRouter();
@@ -59,7 +61,7 @@ export default function CoursesPage() {
     }
 
     if (!isStudent) {
-      alert('Only students can enroll in courses per platform access rules.');
+      toast.warning('Only students can enroll in courses per platform access rules.');
       return;
     }
 
@@ -72,10 +74,11 @@ export default function CoursesPage() {
           progressPercent: 0,
         },
       });
+      toast.success('Successfully enrolled! Heading to course workspace... 🚀');
       router.push(`/dashboard/courses/${courseId}`);
     } catch (err) {
       console.error('Enrollment failed:', err);
-      alert('Failed to enroll. Please try again.');
+      toast.error('Failed to enroll in this course. Please try again.');
     } finally {
       setEnrollingId(null);
     }

@@ -7,6 +7,8 @@ import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { Sparkles, ArrowRight, Lock, User as UserIcon, AlertCircle } from 'lucide-react';
 
+import { toast } from 'react-toastify';
+
 export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
@@ -20,10 +22,13 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      await login(identifier, password);
+      const loggedUser = await login(identifier, password);
+      toast.success(`Welcome back, ${loggedUser?.username || 'Learner'}! 👋`);
       router.push('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error?.message || 'Login failed. Check your credentials.');
+      const msg = err.response?.data?.error?.message || 'Login failed. Check your credentials.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

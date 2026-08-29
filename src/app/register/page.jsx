@@ -54,6 +54,8 @@ const SIGNUP_ROLES = [
   },
 ];
 
+import { toast } from 'react-toastify';
+
 export default function RegisterPage() {
   const { register } = useAuth();
   const router = useRouter();
@@ -69,10 +71,14 @@ export default function RegisterPage() {
     setError('');
     setLoading(true);
     try {
-      await register(username, email, password, selectedRole);
+      const newUser = await register(username, email, password, selectedRole);
+      const roleLabel = selectedRole === 'content_manager' ? 'Content Manager' : selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1);
+      toast.success(`Welcome to LearnSphere, ${newUser?.username || username}! Signed up as ${roleLabel}. 🎉`);
       router.push('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error?.message || 'Registration failed.');
+      const msg = err.response?.data?.error?.message || 'Registration failed.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

@@ -17,6 +17,7 @@ import {
   Sparkles,
   AlertCircle
 } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 export default function BlogDetailPage() {
   const { id: postId } = useParams();
@@ -94,6 +95,7 @@ export default function BlogDetailPage() {
     if (typeof window !== 'undefined') {
       navigator.clipboard.writeText(window.location.href);
       setCopied(true);
+      toast.success('Article link copied to clipboard! 📋');
       setTimeout(() => setCopied(false), 2000);
     }
   };

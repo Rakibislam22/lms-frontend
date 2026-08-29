@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import useScrollLock from '@/hooks/useScrollLock';
 import { X, FileEdit, Sparkles, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 export default function BlogModal({ isOpen, onClose, post, onSaved }) {
   useScrollLock(isOpen);
@@ -57,15 +58,19 @@ export default function BlogModal({ isOpen, onClose, post, onSaved }) {
 
       if (isEdit) {
         await api.put(`/api/blog-posts/${post.id}`, payload);
+        toast.success('Article updated successfully! ✍️');
       } else {
         await api.post('/api/blog-posts', payload);
+        toast.success('Article published successfully! ✍️');
       }
 
       onSaved();
       onClose();
     } catch (err) {
       console.error('Failed to save blog post:', err);
-      setError(err.response?.data?.error?.message || 'Failed to save blog post. Verify permissions.');
+      const errMsg = err.response?.data?.error?.message || 'Failed to save blog post. Verify permissions.';
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }

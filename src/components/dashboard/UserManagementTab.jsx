@@ -15,6 +15,9 @@ import {
   UserCheck
 } from 'lucide-react';
 
+import { toast } from 'react-toastify';
+import { confirmAction } from '@/lib/alerts';
+
 export default function UserManagementTab({ currentUser, onRoleUpdated }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,8 +42,18 @@ export default function UserManagementTab({ currentUser, onRoleUpdated }) {
     fetchUsers();
   }, []);
 
-  const handleRoleChange = async (userId, targetRole) => {
+  const handleRoleChange = async (userId, targetRole, username = 'user') => {
     if (!userId || !targetRole) return;
+
+    const roleName = targetRole === 'content_manager' ? 'Content Manager' : targetRole.charAt(0).toUpperCase() + targetRole.slice(1);
+    const isConfirmed = await confirmAction({
+      title: 'Update User Role?',
+      text: `Are you sure you want to change ${username}'s role to "${roleName}"?`,
+      confirmText: 'Yes, update role',
+      icon: 'question',
+    });
+    if (!isConfirmed) return;
+
     setUpdatingUserId(userId);
     setFeedback(null);
 
@@ -49,6 +62,7 @@ export default function UserManagementTab({ currentUser, onRoleUpdated }) {
         role: targetRole,
       });
 
+      toast.success(`Role updated to "${roleName}" for ${username}! 🛡️`);
       setFeedback({
         type: 'success',
         message: `Role successfully updated to "${targetRole}"!`,
@@ -73,9 +87,11 @@ export default function UserManagementTab({ currentUser, onRoleUpdated }) {
       if (onRoleUpdated) onRoleUpdated();
     } catch (err) {
       console.error('Failed to change user role:', err);
+      const msg = err.response?.data?.error?.message || 'Failed to update user role.';
+      toast.error(msg);
       setFeedback({
         type: 'error',
-        message: err.response?.data?.error?.message || 'Failed to update user role.',
+        message: msg,
       });
     } finally {
       setUpdatingUserId(null);
@@ -267,7 +283,7 @@ export default function UserManagementTab({ currentUser, onRoleUpdated }) {
                           ) : (
                             <select
                               value={currentRole}
-                              onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                              onChange={(e) => handleRoleChange(u.id, e.target.value, u.username)}
                               className="px-3 py-1.5 rounded-xl bg-[#181826] border border-white/15 text-white text-xs font-semibold focus:outline-none focus:border-indigo-500 cursor-pointer hover:border-white/30 transition-colors"
                             >
                               <option value="student">Student</option>

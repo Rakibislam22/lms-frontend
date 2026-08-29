@@ -20,6 +20,8 @@ import {
 import CourseModal from './CourseModal';
 import LessonManagerModal from './LessonManagerModal';
 import QuizManagerModal from './QuizManagerModal';
+import { toast } from 'react-toastify';
+import { confirmDelete } from '@/lib/alerts';
 
 export default function CourseManagementTab({ user, onOpenCreateCourse, coursesTrigger }) {
   const [courses, setCourses] = useState([]);
@@ -57,16 +59,20 @@ export default function CourseManagementTab({ user, onOpenCreateCourse, coursesT
   }, [user, roleType, coursesTrigger]);
 
   const handleDeleteCourse = async (courseId) => {
-    if (!confirm('Are you sure you want to permanently delete this course and its curriculum?')) {
-      return;
-    }
+    const isConfirmed = await confirmDelete({
+      title: 'Delete Course?',
+      text: 'Are you sure you want to permanently delete this course and its curriculum? This cannot be undone.',
+      confirmText: 'Yes, delete course',
+    });
+    if (!isConfirmed) return;
 
     try {
       await api.delete(`/api/courses/${courseId}`);
+      toast.success('Course deleted successfully.');
       await fetchCourses();
     } catch (err) {
       console.error('Failed to delete course:', err);
-      alert(err.response?.data?.error?.message || 'Failed to delete course.');
+      toast.error(err.response?.data?.error?.message || 'Failed to delete course.');
     }
   };
 

@@ -15,6 +15,9 @@ import {
   RotateCcw
 } from 'lucide-react';
 
+import { toast } from 'react-toastify';
+import { confirmAction } from '@/lib/alerts';
+
 export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted, onQuizSubmitted }) {
   useScrollLock(isOpen);
 
@@ -65,9 +68,15 @@ export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted, on
     // Check if any question was left unanswered
     const answeredCount = Object.keys(answers).length;
     if (answeredCount < totalQ) {
-      if (!confirm(`You answered ${answeredCount} of ${totalQ} questions. Submit anyway?`)) {
-        return;
-      }
+      const isConfirmed = await confirmAction({
+        title: 'Submit Incomplete Quiz?',
+        text: `You have answered ${answeredCount} of ${totalQ} questions. Are you sure you want to submit?`,
+        confirmText: 'Yes, submit anyway',
+        cancelText: 'Review questions',
+        icon: 'warning',
+        isDanger: true,
+      });
+      if (!isConfirmed) return;
     }
 
     setSubmitting(true);
@@ -87,9 +96,12 @@ export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted, on
 
       const resData = res.data?.data || res.data;
       setResult(resData);
+      toast.success('Quiz submitted successfully! Reviewing results... 🎯');
     } catch (err) {
-      console.error('Quiz submission failed:', err);
-      setError(err.response?.data?.error?.message || 'Failed to evaluate quiz submission.');
+      console.error('Failed to submit quiz:', err);
+      const errMsg = err.response?.data?.error?.message || 'Failed to submit quiz. Please try again.';
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setSubmitting(false);
     }

@@ -22,6 +22,9 @@ import {
   GraduationCap
 } from 'lucide-react';
 
+import { toast } from 'react-toastify';
+import { confirmAction } from '@/lib/alerts';
+
 export default function Navbar() {
   const { user, logout, loading } = useAuth();
   const { openCreateCourse, openCreateBlog } = useModal();
@@ -29,6 +32,23 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    const isConfirmed = await confirmAction({
+      title: 'Sign Out?',
+      text: 'Are you sure you want to sign out of LearnSphere?',
+      confirmText: 'Yes, sign out',
+      cancelText: 'Stay logged in',
+      icon: 'question',
+      isDanger: true,
+    });
+    if (!isConfirmed) return;
+
+    setProfileMenuOpen(false);
+    setMobileMenuOpen(false);
+    logout();
+    toast.info('Signed out successfully. See you soon! 👋');
+  };
 
   const profileRef = useRef(null);
   const roleType = user?.role?.type || 'student';
@@ -427,10 +447,7 @@ export default function Navbar() {
                       {/* Integrated Logout Button inside Profile Pop-Up */}
                       <div className="pt-2 border-t border-white/10">
                         <button
-                          onClick={() => {
-                            setProfileMenuOpen(false);
-                            logout();
-                          }}
+                          onClick={handleLogout}
                           className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-semibold text-xs border border-rose-500/30 transition-all shadow-sm active:scale-95"
                         >
                           <LogOut className="w-3.5 h-3.5" />
@@ -573,10 +590,7 @@ export default function Navbar() {
 
                 {/* Mobile Logout Button */}
                 <button
-                  onClick={() => {
-                    logout();
-                    setMobileMenuOpen(false);
-                  }}
+                  onClick={handleLogout}
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-500/10 text-rose-300 border border-rose-500/30 text-xs font-semibold hover:bg-rose-500/20 transition-all"
                 >
                   <LogOut className="w-3.5 h-3.5" />

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import useScrollLock from '@/hooks/useScrollLock';
 import { X, BookOpen, Sparkles, AlertCircle } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 export default function CourseModal({ isOpen, onClose, course, onSaved }) {
   useScrollLock(isOpen);
@@ -13,10 +14,13 @@ export default function CourseModal({ isOpen, onClose, course, onSaved }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const isEdit = Boolean(course);
+
   useEffect(() => {
     if (course) {
-      setTitle(course.title || course.attributes?.title || '');
-      setDescription(course.description || course.attributes?.description || '');
+      const attrs = course.attributes || course;
+      setTitle(attrs.title || '');
+      setDescription(attrs.description || '');
     } else {
       setTitle('');
       setDescription('');
@@ -25,8 +29,6 @@ export default function CourseModal({ isOpen, onClose, course, onSaved }) {
   }, [course, isOpen]);
 
   if (!isOpen) return null;
-
-  const isEdit = !!course;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,6 +48,7 @@ export default function CourseModal({ isOpen, onClose, course, onSaved }) {
             description: description.trim(),
           },
         });
+        toast.success('Course updated successfully! 🚀');
       } else {
         await api.post('/api/courses', {
           data: {
@@ -53,13 +56,16 @@ export default function CourseModal({ isOpen, onClose, course, onSaved }) {
             description: description.trim(),
           },
         });
+        toast.success('Course created successfully! 🚀');
       }
 
       onSaved();
       onClose();
     } catch (err) {
       console.error('Failed to save course:', err);
-      setError(err.response?.data?.error?.message || 'Failed to save course. Please verify your permissions.');
+      const errMsg = err.response?.data?.error?.message || 'Failed to save course. Please verify your permissions.';
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }

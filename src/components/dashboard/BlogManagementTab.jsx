@@ -17,6 +17,8 @@ import {
   AlertCircle
 } from 'lucide-react';
 import BlogModal from './BlogModal';
+import { toast } from 'react-toastify';
+import { confirmDelete } from '@/lib/alerts';
 
 export default function BlogManagementTab({ user, onOpenCreateBlog }) {
   const [posts, setPosts] = useState([]);
@@ -54,23 +56,31 @@ export default function BlogManagementTab({ user, onOpenCreateBlog }) {
           status: nextStatus,
         },
       });
+      toast.success(`Article ${nextStatus === 'published' ? 'published' : 'saved as draft'}!`);
       await fetchPosts();
     } catch (err) {
       console.error('Failed to toggle blog status:', err);
-      alert('Failed to update status.');
+      toast.error('Failed to update article status.');
     } finally {
       setTogglingId(null);
     }
   };
 
   const handleDeletePost = async (postId) => {
-    if (!confirm('Are you sure you want to permanently delete this blog post?')) return;
+    const isConfirmed = await confirmDelete({
+      title: 'Delete Article?',
+      text: 'Are you sure you want to permanently delete this blog post? This cannot be undone.',
+      confirmText: 'Yes, delete article',
+    });
+    if (!isConfirmed) return;
+
     try {
       await api.delete(`/api/blog-posts/${postId}`);
+      toast.success('Blog post deleted successfully.');
       await fetchPosts();
     } catch (err) {
       console.error('Failed to delete blog post:', err);
-      alert(err.response?.data?.error?.message || 'Failed to delete post.');
+      toast.error(err.response?.data?.error?.message || 'Failed to delete post.');
     }
   };
 
