@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
-import DashboardHeader from './DashboardHeader';
 import StatsOverview from './StatsOverview';
 import CourseManagementTab from './CourseManagementTab';
 import UserManagementTab from './UserManagementTab';
@@ -73,14 +72,11 @@ export default function DashboardShell() {
       {/* Ambient background glow accents */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-indigo-500/10 via-violet-500/5 to-transparent blur-3xl pointer-events-none -z-10" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
-        {/* 1. Header greeting & role banner (action buttons moved to Navbar, Matrix removed) */}
-        <DashboardHeader user={user} />
-
-        {/* 2. Primary Focal Section: Dynamic Role Stats Overview */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-8">
+        {/* 1. Primary Focal Section: Dynamic Role Stats Overview (Welcome Card Removed) */}
         <StatsOverview user={user} statsTrigger={combinedTrigger} />
 
-        {/* 3. Segmented Workspace Tabs Navigation */}
+        {/* 2. Segmented Workspace Tabs Navigation */}
         {tabs.length > 1 && (
           <div className="flex items-center gap-2 border-b border-white/10 pb-4 mb-8 overflow-x-auto">
             {tabs.map((tab) => {
@@ -104,7 +100,7 @@ export default function DashboardShell() {
           </div>
         )}
 
-        {/* 4. Active Workspace Content */}
+        {/* 3. Active Workspace Content */}
         <div className="relative">
           {/* Student Tab */}
           {activeTab === 'my-learning' && (
