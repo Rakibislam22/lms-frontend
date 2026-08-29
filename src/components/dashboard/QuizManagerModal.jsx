@@ -10,10 +10,13 @@ import {
   CheckCircle2,
   AlertCircle,
   Sparkles,
-  Award
+  Award,
+  Edit3,
+  RotateCcw,
+  Check
 } from 'lucide-react';
 
-export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved }) {
+export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved, onQuizzesUpdated }) {
   const [title, setTitle] = useState('');
   const [questions, setQuestions] = useState([
     {
@@ -23,6 +26,7 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved 
       correctAnswer: '0',
     },
   ]);
+  const [editingQuiz, setEditingQuiz] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [existingQuizzes, setExistingQuizzes] = useState([]);
@@ -41,23 +45,77 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved 
     }
   };
 
+  const resetToNew = () => {
+    setEditingQuiz(null);
+    setTitle(`${course?.title || course?.attributes?.title || 'Course'} - Assessment Quiz`);
+    setQuestions([
+      {
+        id: 1,
+        question: '',
+        options: ['', '', '', ''],
+        correctAnswer: '0',
+      },
+    ]);
+    setError('');
+  };
+
   useEffect(() => {
     if (isOpen && course) {
-      setTitle(`${course.title || course.attributes?.title || 'Course'} - Assessment Quiz`);
-      setQuestions([
-        {
-          id: 1,
-          question: '',
-          options: ['', '', '', ''],
-          correctAnswer: '0',
-        },
-      ]);
-      setError('');
+      resetToNew();
       fetchExistingQuizzes();
     }
   }, [isOpen, course]);
 
   if (!isOpen || !course) return null;
+
+  const handleEditQuiz = (quiz) => {
+    setEditingQuiz(quiz);
+    const qAttrs = quiz.attributes || quiz;
+    setTitle(qAttrs.title || '');
+
+    let rawQuestions = qAttrs.questions;
+    if (typeof rawQuestions === 'string') {
+      try {
+        rawQuestions = JSON.parse(rawQuestions);
+      } catch {
+        rawQuestions = [];
+      }
+    }
+
+    const loadedQuestions = (Array.isArray(rawQuestions) ? rawQuestions : []).map((qItem, idx) => {
+      const opts = Array.isArray(qItem.options) && qItem.options.length >= 2 ? [...qItem.options] : ['', '', '', ''];
+      while (opts.length < 4) opts.push('');
+
+      let correctIdx = '0';
+      if (qItem.correctIndex !== undefined && qItem.correctIndex !== null) {
+        correctIdx = String(qItem.correctIndex);
+      } else if (qItem.correctAnswer !== undefined) {
+        const found = opts.findIndex((o) => String(o).trim().toLowerCase() === String(qItem.correctAnswer).trim().toLowerCase());
+        if (found >= 0) correctIdx = String(found);
+      }
+
+      return {
+        id: qItem.id || idx + 1,
+        question: qItem.question || '',
+        options: opts,
+        correctAnswer: correctIdx,
+      };
+    });
+
+    setQuestions(
+      loadedQuestions.length > 0
+        ? loadedQuestions
+        : [
+          {
+            id: 1,
+            question: '',
+            options: ['', '', '', ''],
+            correctAnswer: '0',
+          },
+        ]
+    );
+    setError('');
+  };
 
   const handleAddQuestion = () => {
     setQuestions([
@@ -99,8 +157,12 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved 
     if (!confirm('Are you sure you want to delete this quiz?')) return;
     try {
       await api.delete(`/api/quizzes/${quizId}`);
+      if (editingQuiz && (editingQuiz.id === quizId || editingQuiz.documentId === quizId)) {
+        resetToNew();
+      }
       await fetchExistingQuizzes();
       if (onQuizSaved) onQuizSaved();
+      if (onQuizzesUpdated) onQuizzesUpdated();
     } catch (err) {
       console.error('Failed to delete quiz:', err);
       alert('Failed to delete quiz.');
@@ -146,19 +208,33 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved 
         };
       });
 
-      await api.post('/api/quizzes', {
-        data: {
-          title: title.trim(),
-          course: course.id,
-          questions: formattedQuestions,
-        },
-      });
+      if (editingQuiz) {
+        // Update existing quiz
+        const targetId = editingQuiz.documentId || editingQuiz.id;
+        await api.put(`/api/quizzes/${targetId}`, {
+          data: {
+            title: title.trim(),
+            questions: formattedQuestions,
+          },
+        });
+      } else {
+        // Create new quiz
+        await api.post('/api/quizzes', {
+          data: {
+            title: title.trim(),
+            course: course.id,
+            questions: formattedQuestions,
+          },
+        });
+      }
 
       await fetchExistingQuizzes();
       if (onQuizSaved) onQuizSaved();
+      if (onQuizzesUpdated) onQuizzesUpdated();
+      resetToNew();
       onClose();
     } catch (err) {
-      console.error('Failed to create quiz:', err);
+      console.error('Failed to save quiz:', err);
       setError(err.response?.data?.error?.message || 'Failed to save quiz. Verify your permissions.');
     } finally {
       setLoading(false);
@@ -179,9 +255,11 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved 
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold text-white">MCQ Quiz & Auto-Grader Creator</h3>
+                <h3 className="text-lg font-bold text-white">
+                  {editingQuiz ? 'Edit MCQ Quiz' : 'MCQ Quiz & Auto-Grader Creator'}
+                </h3>
                 <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/30">
-                  Instant Server Evaluation
+                  {editingQuiz ? 'Edit Mode' : 'Instant Server Evaluation'}
                 </span>
               </div>
               <p className="text-xs text-white/50 truncate max-w-md">
@@ -202,25 +280,67 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved 
         {existingQuizzes.length > 0 && (
           <div className="my-3 p-3 rounded-xl bg-[#1f1f33] border border-white/10 shrink-0 space-y-2">
             <div className="text-xs font-semibold text-white/80">Existing Quizzes for this course:</div>
-            <div className="space-y-1.5 max-h-24 overflow-y-auto">
+            <div className="space-y-1.5 max-h-24 overflow-y-auto pr-1">
               {existingQuizzes.map((q) => {
                 const qAttrs = q.attributes || q;
                 const questionsCount = Array.isArray(qAttrs.questions) ? qAttrs.questions.length : 0;
+                const isCurrentEdit = editingQuiz && (editingQuiz.id === q.id || editingQuiz.documentId === q.documentId);
+
                 return (
-                  <div key={q.id} className="flex items-center justify-between p-2 rounded-lg bg-white/5 text-xs">
-                    <span className="text-white font-medium">{qAttrs.title} ({questionsCount} Questions)</span>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteQuiz(q.id)}
-                      className="text-rose-400 hover:text-rose-300 text-[11px] flex items-center gap-1"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                      <span>Delete</span>
-                    </button>
+                  <div
+                    key={q.id}
+                    className={`flex items-center justify-between p-2 rounded-lg text-xs transition-colors ${isCurrentEdit ? 'bg-purple-500/20 border border-purple-500/40' : 'bg-white/5'
+                      }`}
+                  >
+                    <span className="text-white font-medium truncate max-w-[280px]">
+                      {qAttrs.title} ({questionsCount} Questions)
+                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleEditQuiz(q)}
+                        className={`text-[11px] font-semibold flex items-center gap-1 px-2.5 py-1 rounded transition-colors ${isCurrentEdit
+                            ? 'bg-purple-500 text-white'
+                            : 'text-purple-300 hover:text-white bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30'
+                          }`}
+                      >
+                        <Edit3 className="w-3 h-3" />
+                        <span>{isCurrentEdit ? 'Editing' : 'Edit'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteQuiz(q.documentId || q.id)}
+                        className="text-rose-400 hover:text-rose-300 text-[11px] font-semibold flex items-center gap-1 px-2.5 py-1 rounded bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
                   </div>
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* Active Edit Banner */}
+        {editingQuiz && (
+          <div className="mb-2 p-2.5 rounded-xl bg-purple-500/15 border border-purple-500/30 text-xs flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2">
+              <Edit3 className="w-3.5 h-3.5 text-purple-300" />
+              <span className="text-white font-semibold">
+                Editing: <span className="text-purple-200">{editingQuiz.title || editingQuiz.attributes?.title}</span>
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={resetToNew}
+              className="text-[11px] text-purple-300 hover:text-white underline flex items-center gap-1"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Cancel Edit (New Quiz)</span>
+            </button>
           </div>
         )}
 
@@ -304,8 +424,8 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved 
                         <div
                           key={optIdx}
                           className={`flex items-center gap-2 p-2 rounded-lg border transition-all ${isCorrect
-                              ? 'bg-purple-500/10 border-purple-500/50 text-white'
-                              : 'bg-[#181826] border-white/5 text-white/80'
+                            ? 'bg-purple-500/10 border-purple-500/50 text-white'
+                            : 'bg-[#181826] border-white/5 text-white/80'
                             }`}
                         >
                           <input
@@ -350,6 +470,11 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved 
                 <>
                   <div className="w-3.5 h-3.5 border-2 border-[#181826] border-t-transparent rounded-full animate-spin" />
                   <span>Saving Quiz...</span>
+                </>
+              ) : editingQuiz ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-purple-600" />
+                  <span>Update Quiz</span>
                 </>
               ) : (
                 <>
