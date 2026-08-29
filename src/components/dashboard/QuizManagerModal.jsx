@@ -303,8 +303,8 @@ export default function QuizManagerModal({ isOpen, onClose, course, onQuizSaved,
                         type="button"
                         onClick={() => handleEditQuiz(q)}
                         className={`text-[11px] font-semibold flex items-center gap-1 px-2.5 py-1 rounded transition-colors ${isCurrentEdit
-                            ? 'bg-purple-500 text-white'
-                            : 'text-purple-300 hover:text-white bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30'
+                          ? 'bg-purple-500 text-white'
+                          : 'text-purple-300 hover:text-white bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30'
                           }`}
                       >
                         <Edit3 className="w-3 h-3" />

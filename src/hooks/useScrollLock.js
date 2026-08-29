@@ -44,3 +44,4 @@ export default function useScrollLock(lock = true) {
     };
   }, [lock]);
 }
+

@@ -244,8 +244,8 @@ export default function ProgressTrackingTab({ user }) {
                                 })
                               }
                               className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all hover:scale-105 active:scale-95 shadow-sm ${isAvgPassed
-                                  ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20'
-                                  : 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20'
+                                ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20'
+                                : 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20'
                                 }`}
                               title="Click to view all quiz results and detailed question audit"
                             >
@@ -371,8 +371,8 @@ export default function ProgressTrackingTab({ user }) {
                       <div className="flex items-center gap-2">
                         <span
                           className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${isPassed
-                              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                              : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                            ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+                            : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
                             }`}
                         >
                           Score: {score}/{total} ({percent}%) {isPassed ? '✓ Passed' : '✗ Needs Practice'}

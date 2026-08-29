@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
@@ -115,8 +116,15 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-3 group shrink-0">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 p-[1px] shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/30 transition-all">
-                <div className="w-full h-full bg-[#181826] rounded-[11px] flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
+                <div className="w-full h-full bg-[#181826] rounded-[11px] flex items-center justify-center p-1">
+                  <Image
+                    src="/logo.png"
+                    alt="LearnSphere Logo"
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                    priority
+                  />
                 </div>
               </div>
               <div className="flex flex-col">
@@ -131,11 +139,11 @@ export default function Navbar() {
 
           {/* 2. Middle Navigation Links (All Courses & Blog Centered) */}
           <nav className="hidden md:flex items-center justify-center gap-1 lg:gap-2">
-            
+
             <Link href="/" className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${pathname === '/' ? 'bg-white/10 text-white border border-white/10 shadow-sm' : 'text-white/70 hover:text-white hover:bg-white/5'}`}>
-                Home
+              Home
             </Link>
-            
+
             <Link
               href="/courses"
               className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${pathname === '/courses'
@@ -147,11 +155,10 @@ export default function Navbar() {
             </Link>
             <Link
               href="/blog"
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${
-                pathname === '/blog' || pathname.startsWith('/blog/')
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${pathname === '/blog' || pathname.startsWith('/blog/')
                   ? 'bg-white/10 text-white border border-white/10 shadow-sm'
                   : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
+                }`}
             >
               Blog
             </Link>
@@ -455,11 +462,10 @@ export default function Navbar() {
             <Link
               href="/blog"
               onClick={() => setMobileMenuOpen(false)}
-              className={`px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
-                pathname === '/blog' || pathname.startsWith('/blog/')
+              className={`px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${pathname === '/blog' || pathname.startsWith('/blog/')
                   ? 'bg-white/10 text-white border border-white/10'
                   : 'text-white/80 hover:text-white hover:bg-white/5'
-              }`}
+                }`}
             >
               <span>Blog</span>
               <ArrowRight className="w-3.5 h-3.5 text-white/40" />

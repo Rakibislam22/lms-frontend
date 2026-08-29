@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Sparkles, Github, ExternalLink, ShieldCheck, Heart } from 'lucide-react';
 
 export default function Footer() {
@@ -10,8 +11,14 @@ export default function Footer() {
           <div className="md:col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 p-[1px] shadow-lg shadow-indigo-500/20">
-                <div className="w-full h-full bg-[#181826] rounded-[11px] flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-white" />
+                <div className="w-full h-full bg-[#181826] rounded-[11px] flex items-center justify-center p-1">
+                  <Image
+                    src="/logo.png"
+                    alt="LearnSphere Logo"
+                    width={28}
+                    height={28}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
               </div>
               <span className="text-xl font-bold tracking-tight text-white font-sans">LearnSphere</span>

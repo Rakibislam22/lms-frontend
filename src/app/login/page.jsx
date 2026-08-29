@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { Sparkles, ArrowRight, Lock, User as UserIcon, AlertCircle } from 'lucide-react';
 
@@ -35,11 +36,20 @@ export default function LoginPage() {
         <div className="absolute -top-24 -right-24 w-72 h-72 bg-indigo-500/15 blur-3xl pointer-events-none" />
 
         <div className="text-center space-y-2 mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 p-[1px] mx-auto shadow-lg shadow-indigo-500/20">
-            <div className="w-full h-full bg-[#181826] rounded-[15px] flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
+          <Link href="/" className="inline-block group" title="LearnSphere Home">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 p-[1px] mx-auto shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/30 transition-all">
+              <div className="w-full h-full bg-[#181826] rounded-[15px] flex items-center justify-center p-2">
+                <Image
+                  src="/logo.png"
+                  alt="LearnSphere Logo"
+                  width={44}
+                  height={44}
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                  priority
+                />
+              </div>
             </div>
-          </div>
+          </Link>
           <h1 className="text-2xl font-extrabold tracking-tight text-white">Welcome Back</h1>
           <p className="text-xs text-white/50">
             Sign in to access your role-synchronized workspace
