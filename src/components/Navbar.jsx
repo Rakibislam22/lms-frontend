@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 import { useState, useEffect, useRef } from 'react';
@@ -17,20 +18,20 @@ import {
   ArrowRight,
   Shield,
   Award,
-  ChevronDown,
-  User,
   GraduationCap
 } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout, loading } = useAuth();
   const { openCreateCourse, openCreateBlog } = useModal();
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   const profileRef = useRef(null);
   const roleType = user?.role?.type || 'student';
+  const isDashboardPage = pathname === '/dashboard';
 
   const roleConfig = {
     admin: {
@@ -39,7 +40,6 @@ export default function Navbar() {
       badge: 'Admin • Root Governance',
       badgeClass: 'bg-rose-500/10 text-rose-300 border-rose-500/30',
       avatarClass: 'bg-rose-500/20 text-rose-300 border-rose-500/40 shadow-lg shadow-rose-500/20 ring-1 ring-rose-500/30',
-      description: 'Total platform authority: govern users, assign roles, manage all courses, lessons, quizzes, and blog publications.',
       icon: Shield,
     },
     content_manager: {
@@ -48,7 +48,6 @@ export default function Navbar() {
       badge: 'Content Manager • Editorial',
       badgeClass: 'bg-purple-500/10 text-purple-300 border-purple-500/30',
       avatarClass: 'bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-lg shadow-purple-500/20 ring-1 ring-purple-500/30',
-      description: 'Platform content manager: curate curricula, publish rich articles, manage draft vs published workflows, and build course quizzes.',
       icon: FileEdit,
     },
     instructor: {
@@ -57,7 +56,6 @@ export default function Navbar() {
       badge: 'Instructor • Educator',
       badgeClass: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
       avatarClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-lg shadow-emerald-500/20 ring-1 ring-emerald-500/30',
-      description: 'Course instructor: build your curriculum, add video lessons, author MCQ quizzes with auto-grading, and monitor student progression.',
       icon: BookOpen,
     },
     student: {
@@ -66,7 +64,6 @@ export default function Navbar() {
       badge: 'Student • Learner',
       badgeClass: 'bg-sky-500/10 text-sky-300 border-sky-500/30',
       avatarClass: 'bg-sky-500/20 text-sky-300 border-sky-500/40 shadow-lg shadow-sky-500/20 ring-1 ring-sky-500/30',
-      description: 'Your interactive learning workspace: track course completion percentages, mark lessons finished, and take auto-graded assessments.',
       icon: Award,
     },
   };
@@ -173,7 +170,7 @@ export default function Navbar() {
                     </button>
                     <button
                       onClick={openCreateBlog}
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1f1f33] text-white font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1f1f33] text-white font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
                     >
                       <FileEdit className="w-3.5 h-3.5 text-purple-400" />
                       <span>New Blog</span>
@@ -192,7 +189,7 @@ export default function Navbar() {
                     </button>
                     <button
                       onClick={openCreateBlog}
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1f1f33] text-white font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1f1f33] text-white font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
                     >
                       <FileEdit className="w-3.5 h-3.5 text-purple-400" />
                       <span>Write Article</span>
@@ -213,67 +210,48 @@ export default function Navbar() {
                 {roleType === 'student' && (
                   <Link
                     href="/courses"
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1f1f33] text-white/90 font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1f1f33] text-white/90 font-medium text-xs border border-white/10 hover:bg-[#262640] transition-all"
                   >
                     <Search className="w-3.5 h-3.5 text-sky-400" />
                     <span>Browse Courses</span>
                   </Link>
                 )}
 
-                {/* Dashboard Link */}
-                <Link
-                  href="/dashboard"
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#262640] text-white font-semibold text-xs border border-white/15 hover:bg-[#2e2e4e] transition-all"
-                >
-                  <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>Dashboard</span>
-                </Link>
+                {/* Dashboard Link - Hidden when arrived on /dashboard */}
+                {!isDashboardPage && (
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#262640] text-white font-semibold text-xs border border-white/15 hover:bg-[#2e2e4e] transition-all"
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>Dashboard</span>
+                  </Link>
+                )}
 
-                {/* 3. Role-Styled Profile Logo with Dropdown Pop-Up */}
+                {/* 3. Role-Styled Profile Logo Icon Only (Name removed from navbar row) */}
                 <div className="relative pl-1 border-l border-white/10" ref={profileRef}>
                   <button
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                    className={`flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border transition-all select-none ${
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs border transition-all duration-200 select-none shadow-md ${
+                      currentRole.avatarClass
+                    } ${
                       profileMenuOpen
-                        ? 'bg-[#262640] border-white/30 ring-2 ring-white/10'
-                        : 'bg-[#1f1f33] hover:bg-[#262640] border-white/10'
+                        ? 'scale-105 ring-2 ring-white/30 brightness-110'
+                        : 'hover:scale-105 hover:brightness-110 active:scale-95'
                     }`}
-                    title="View Profile Details"
+                    title={`Profile: ${user.username} (${currentRole.label})`}
+                    aria-label="View profile details"
                   >
-                    {/* Color Shifting Profile Logo Icon */}
-                    <div
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs border transition-transform duration-200 ${
-                        currentRole.avatarClass
-                      } ${profileMenuOpen ? 'scale-105' : ''}`}
-                    >
-                      {user.username?.charAt(0)?.toUpperCase() || 'U'}
-                    </div>
-
-                    <div className="hidden lg:flex flex-col text-left">
-                      <span className="text-xs font-semibold text-white leading-none">
-                        {user.username}
-                      </span>
-                      <span
-                        className={`text-[9px] font-semibold px-1.5 py-0.2 rounded-full border inline-block mt-0.5 ${currentRole.badgeClass}`}
-                      >
-                        {currentRole.label}
-                      </span>
-                    </div>
-
-                    <ChevronDown
-                      className={`w-3.5 h-3.5 text-white/50 transition-transform duration-200 ${
-                        profileMenuOpen ? 'rotate-180 text-white' : ''
-                      }`}
-                    />
+                    {user.username?.charAt(0)?.toUpperCase() || 'U'}
                   </button>
 
                   {/* Profile Details Pop-Up Menu */}
                   {profileMenuOpen && (
-                    <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-3xl bg-[#1f1f33]/95 border border-white/15 p-5 sm:p-6 shadow-2xl backdrop-blur-2xl z-50 space-y-4">
+                    <div className="absolute right-0 mt-3 w-80 sm:w-88 rounded-3xl bg-[#1f1f33]/95 border border-white/15 p-5 shadow-2xl backdrop-blur-2xl z-50 space-y-3.5 animate-in fade-in slide-in-from-top-2 duration-150">
                       {/* Top User Card */}
-                      <div className="flex items-start gap-3.5 pb-4 border-b border-white/10">
+                      <div className="flex items-start gap-3.5 pb-3.5 border-b border-white/10">
                         <div
-                          className={`w-12 h-12 rounded-2xl flex items-center justify-center font-extrabold text-lg border shrink-0 ${currentRole.avatarClass}`}
+                          className={`w-11 h-11 rounded-2xl flex items-center justify-center font-extrabold text-base border shrink-0 shadow-md ${currentRole.avatarClass}`}
                         >
                           {user.username?.charAt(0)?.toUpperCase() || 'U'}
                         </div>
@@ -296,34 +274,17 @@ export default function Navbar() {
                         </div>
                       </div>
 
-                      {/* Role Details & Scope Section */}
-                      <div className="p-3.5 rounded-2xl bg-[#181826]/70 border border-white/5 space-y-2">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-bold text-white">{currentRole.title}</span>
-                          <span className="flex items-center gap-1 text-[10px] text-emerald-400">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                            Live Session
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-white/60 leading-relaxed">
-                          {currentRole.description}
-                        </p>
+                      {/* Role Hub & Live Session Bar (short paragraph removed) */}
+                      <div className="p-3 rounded-2xl bg-[#181826]/70 border border-white/5 flex items-center justify-between text-xs">
+                        <span className="font-bold text-white/90">{currentRole.title}</span>
+                        <span className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-medium">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Live Session Active
+                        </span>
                       </div>
 
-                      {/* Quick Links inside Profile Pop-up */}
-                      <div className="space-y-1 pt-1">
-                        <Link
-                          href="/dashboard"
-                          onClick={() => setProfileMenuOpen(false)}
-                          className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 text-xs text-white/80 hover:text-white transition-colors"
-                        >
-                          <span className="flex items-center gap-2 font-medium">
-                            <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
-                            <span>Go to Dashboard</span>
-                          </span>
-                          <ArrowRight className="w-3 h-3 text-white/40" />
-                        </Link>
-
+                      {/* Contextual Link (Go to Dashboard removed since it is in Navbar) */}
+                      <div className="space-y-1 pt-0.5">
                         {roleType === 'student' ? (
                           <Link
                             href="/my-courses"
@@ -351,7 +312,7 @@ export default function Navbar() {
                         )}
                       </div>
 
-                      {/* Integrated Logout Button inside the Profile Pop-up */}
+                      {/* Integrated Logout Button inside Profile Pop-Up */}
                       <div className="pt-2 border-t border-white/10">
                         <button
                           onClick={() => {
@@ -430,7 +391,7 @@ export default function Navbar() {
             {user ? (
               <div className="space-y-3">
                 {/* Mobile Profile Card with Role Color */}
-                <div className="p-4 rounded-2xl bg-[#1f1f33] border border-white/10 space-y-3">
+                <div className="p-4 rounded-2xl bg-[#1f1f33] border border-white/10 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div
@@ -450,8 +411,12 @@ export default function Navbar() {
                     </span>
                   </div>
 
-                  <div className="text-[10px] text-white/60 leading-relaxed pt-1 border-t border-white/5">
-                    {currentRole.description}
+                  <div className="flex items-center justify-between text-[11px] text-white/70 pt-1 border-t border-white/5">
+                    <span>{currentRole.title}</span>
+                    <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-medium">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Active
+                    </span>
                   </div>
                 </div>
 
@@ -483,14 +448,17 @@ export default function Navbar() {
                   )}
                 </div>
 
-                <Link
-                  href="/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-xs"
-                >
-                  <LayoutDashboard className="w-3.5 h-3.5" />
-                  <span>Go to Dashboard</span>
-                </Link>
+                {/* Dashboard button in mobile drawer - hidden on /dashboard */}
+                {!isDashboardPage && (
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-xs"
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5" />
+                    <span>Go to Dashboard</span>
+                  </Link>
+                )}
 
                 {/* Mobile Logout Button */}
                 <button
