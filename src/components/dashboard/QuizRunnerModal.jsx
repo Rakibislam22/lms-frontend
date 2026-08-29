@@ -84,14 +84,20 @@ export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted, on
 
       const resData = res.data?.data || res.data;
       setResult(resData);
-      if (onCompleted) onCompleted(resData);
-      if (onQuizSubmitted) onQuizSubmitted(resData);
     } catch (err) {
       console.error('Quiz submission failed:', err);
       setError(err.response?.data?.error?.message || 'Failed to evaluate quiz submission.');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleClose = () => {
+    if (result) {
+      if (onCompleted) onCompleted(result);
+      if (onQuizSubmitted) onQuizSubmitted(result);
+    }
+    if (onClose) onClose(result);
   };
 
   return (
@@ -117,7 +123,7 @@ export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted, on
           </div>
 
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -217,7 +223,7 @@ export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted, on
 
             <div className="pt-2 flex items-center justify-center gap-3">
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="px-6 py-2.5 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all shadow-md shadow-white/10"
               >
                 Close & Return to Dashboard
