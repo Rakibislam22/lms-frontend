@@ -4,7 +4,7 @@ import { Sparkles, Github, ExternalLink, ShieldCheck, Heart } from 'lucide-react
 export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#141420] text-white/70 pt-16 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
           {/* Column 1: Brand */}
           <div className="md:col-span-2 space-y-4">

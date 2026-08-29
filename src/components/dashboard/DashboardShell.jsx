@@ -98,7 +98,7 @@ export default function DashboardShell() {
       {/* Ambient background glow accents */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-indigo-500/10 via-violet-500/5 to-transparent blur-3xl pointer-events-none -z-10" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-8">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-8">
         {/* 1. Primary Focal Section: Dynamic Role Stats Overview (Welcome Card Removed) */}
         <StatsOverview user={user} statsTrigger={combinedTrigger} />
 

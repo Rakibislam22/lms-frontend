@@ -109,7 +109,7 @@ export default function Navbar() {
         : 'bg-[#181826]/80 backdrop-blur-sm border-b border-white/5'
         }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-18">
           {/* 1. Brand Logo (Left) */}
           <div className="flex items-center">

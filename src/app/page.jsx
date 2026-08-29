@@ -136,7 +136,7 @@ export default function Home() {
       {/* ======================================================== */}
       {/* 1. HERO SECTION */}
       {/* ======================================================== */}
-      <section className="pt-16 pb-20 md:pt-24 md:pb-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="pt-16 pb-20 md:pt-24 md:pb-28 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto space-y-6">
           {/* Eyebrow Badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1f1f33] border border-white/10 text-xs font-medium text-white/90 shadow-inner">
@@ -353,7 +353,7 @@ export default function Home() {
       {/* 2. PLATFORM METRICS / TRUST COUNTERS */}
       {/* ======================================================== */}
       <section className="py-12 border-y border-white/5 bg-[#141420]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div className="space-y-1">
               <div className="text-3xl sm:text-4xl font-extrabold text-white">4 Roles</div>
@@ -378,7 +378,7 @@ export default function Home() {
       {/* ======================================================== */}
       {/* 3. USER ROLES ECOSYSTEM SECTION (The 4 Roles) */}
       {/* ======================================================== */}
-      <section id="roles" className="py-20 md:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="roles" className="py-20 md:py-28 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-indigo-300 uppercase tracking-wider">
             <Shield className="w-3.5 h-3.5" />
@@ -568,7 +568,7 @@ export default function Home() {
       {/* 4. KEY DIFFERENTIATOR FEATURES SECTION */}
       {/* ======================================================== */}
       <section id="features" className="py-20 bg-[#141420] border-y border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-emerald-400 uppercase tracking-wider">
               <Award className="w-3.5 h-3.5" />
@@ -634,7 +634,7 @@ export default function Home() {
       {/* ======================================================== */}
       {/* 5. FEATURED COURSES SECTION */}
       {/* ======================================================== */}
-      <section className="py-20 md:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 md:py-28 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
           <div>
             <div className="text-xs font-semibold uppercase tracking-wider text-indigo-400 mb-2">Curated Catalog</div>
@@ -710,7 +710,7 @@ export default function Home() {
       {/* 6. LATEST FROM THE BLOG */}
       {/* ======================================================== */}
       <section id="blog" className="py-20 bg-[#141420] border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
             <div>
               <div className="text-xs font-semibold uppercase tracking-wider text-purple-400 mb-2">Knowledge Base</div>
@@ -765,7 +765,7 @@ export default function Home() {
       {/* ======================================================== */}
       {/* 7. PRE-FOOTER CALL TO ACTION BANNER */}
       {/* ======================================================== */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-3xl bg-gradient-to-b from-[#22223b] to-[#1a1a2e] border border-white/15 p-8 sm:p-14 text-center overflow-hidden shadow-2xl">
           {/* Subtle Glow inside Banner */}
           <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-500/10 blur-3xl pointer-events-none" />

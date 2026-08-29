@@ -8,7 +8,7 @@ function MyCoursesContent() {
   const { user } = useAuth();
 
   return (
-    <main className="min-h-screen bg-[#181826] text-white py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <main className="min-h-screen bg-[#181826] text-white py-10 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/10">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">My Learning Tracks</h1>
