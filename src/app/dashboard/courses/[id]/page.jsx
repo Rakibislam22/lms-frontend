@@ -72,14 +72,45 @@ export default function CourseDetailPage({ params }) {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      // 1. Fetch Course details
-      const courseRes = await api.get(`/api/courses/${courseId}?populate=*`);
-      const courseData = courseRes.data?.data;
+      // 1. Fetch Course details (supports Strapi 5 numeric id and documentId)
+      let courseData = null;
+      const isNumeric = /^\d+$/.test(String(courseId));
+
+      if (isNumeric) {
+        const filterRes = await api.get(`/api/courses?filters[id][$eq]=${courseId}&populate=*`);
+        courseData = filterRes.data?.data?.[0] || null;
+      } else {
+        try {
+          const directRes = await api.get(`/api/courses/${courseId}?populate=*`);
+          courseData = directRes.data?.data || null;
+        } catch (err) {
+          if (err.response?.status === 404) {
+            const filterRes = await api.get(`/api/courses?filters[documentId][$eq]=${courseId}&populate=*`);
+            courseData = filterRes.data?.data?.[0] || null;
+          } else {
+            throw err;
+          }
+        }
+      }
+
+      // Fallback lookup if not yet found
+      if (!courseData) {
+        try {
+          const filterRes = await api.get(`/api/courses?filters[documentId][$eq]=${courseId}&populate=*`);
+          courseData = filterRes.data?.data?.[0] || null;
+        } catch {}
+      }
+
+      if (!courseData) {
+        throw new Error('Course not found');
+      }
+
       setCourse(courseData);
+      const actualCourseId = courseData.id;
 
       // 2. Fetch Lessons for this course
       const lessonsRes = await api.get(
-        `/api/lessons?filters[course][id][$eq]=${courseId}&sort=order:asc`
+        `/api/lessons?filters[course][id][$eq]=${actualCourseId}&sort=order:asc`
       );
       const fetchedLessons = lessonsRes.data?.data || [];
       setLessons(fetchedLessons);
@@ -90,39 +121,45 @@ export default function CourseDetailPage({ params }) {
 
       // 3. Fetch Quizzes for this course
       const quizzesRes = await api.get(
-        `/api/quizzes?filters[course][id][$eq]=${courseId}&populate=*`
+        `/api/quizzes?filters[course][id][$eq]=${actualCourseId}&populate=*`
       );
       setQuizzes(quizzesRes.data?.data || []);
 
       if (isStudent && user) {
         // 4. Fetch Student Enrollment
         const enrollRes = await api.get(
-          `/api/enrollments?filters[student][id][$eq]=${user.id}&filters[course][id][$eq]=${courseId}`
+          `/api/enrollments?filters[student][id][$eq]=${user.id}&filters[course][id][$eq]=${actualCourseId}`
         );
         const userEnrollment = enrollRes.data?.data?.[0] || null;
         setEnrollment(userEnrollment);
 
         // 5. Fetch Student Lesson Progresses
         const progRes = await api.get(
-          `/api/lesson-progresses?filters[student][id][$eq]=${user.id}&filters[lesson][course][id][$eq]=${courseId}`
+          `/api/lesson-progresses?filters[student][id][$eq]=${user.id}&filters[lesson][course][id][$eq]=${actualCourseId}`
         );
         const completed = new Set(
           (progRes.data?.data || [])
-            .filter((p) => (p.attributes?.isCompleted ?? p.isCompleted))
-            .map((p) => p.attributes?.lesson?.id || p.lesson?.id)
+            .filter((p) => {
+              const attrs = p.attributes || p;
+              return attrs.completed === true || attrs.isCompleted === true;
+            })
+            .map((p) => {
+              const attrs = p.attributes || p;
+              return attrs.lesson?.id || attrs.lesson?.data?.id || attrs.lesson;
+            })
         );
         setCompletedLessonIds(completed);
 
         // 6. Fetch Student Quiz Results
         const resultsRes = await api.get(
-          `/api/quiz-results?filters[student][id][$eq]=${user.id}&filters[quiz][course][id][$eq]=${courseId}&populate=*`
+          `/api/quiz-results?filters[student][id][$eq]=${user.id}&filters[quiz][course][id][$eq]=${actualCourseId}&populate=*`
         );
         setQuizResults(resultsRes.data?.data || []);
       } else if (!isStudent) {
         // 7. For Educator: Fetch Enrolled Students for this course
         try {
           const enrollmentsRes = await api.get(
-            `/api/enrollments?filters[course][id][$eq]=${courseId}&populate=student`
+            `/api/enrollments?filters[course][id][$eq]=${actualCourseId}&populate=student`
           );
           setEnrolledStudents(enrollmentsRes.data?.data || []);
         } catch {
@@ -144,7 +181,8 @@ export default function CourseDetailPage({ params }) {
 
   // Student: Toggle Lesson Completion
   const handleToggleLessonComplete = async (lessonId) => {
-    if (!user) return;
+    if (!user || !course) return;
+    const actualCourseId = course.id;
     const isCurrentlyDone = completedLessonIds.has(lessonId);
     const nextStatus = !isCurrentlyDone;
 
@@ -154,7 +192,7 @@ export default function CourseDetailPage({ params }) {
         data: {
           student: user.id,
           lesson: lessonId,
-          isCompleted: nextStatus,
+          completed: nextStatus,
         },
       });
 
@@ -168,7 +206,7 @@ export default function CourseDetailPage({ params }) {
 
       // Refresh enrollment record to get live recalculated percentage
       const enrollRes = await api.get(
-        `/api/enrollments?filters[student][id][$eq]=${user.id}&filters[course][id][$eq]=${courseId}`
+        `/api/enrollments?filters[student][id][$eq]=${user.id}&filters[course][id][$eq]=${actualCourseId}`
       );
       if (enrollRes.data?.data?.[0]) {
         setEnrollment(enrollRes.data.data[0]);
@@ -182,12 +220,14 @@ export default function CourseDetailPage({ params }) {
 
   // Student: Self-Enroll if not yet enrolled
   const handleEnrollNow = async () => {
+    if (!course) return;
+    const actualCourseId = course.id;
     try {
       setSavingProgress(true);
       await api.post('/api/enrollments', {
         data: {
           student: user.id,
-          course: courseId,
+          course: actualCourseId,
           progressPercent: 0,
         },
       });
