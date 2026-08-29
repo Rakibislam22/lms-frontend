@@ -50,8 +50,24 @@ export default function StudentWorkspace({ user }) {
       {enrollments.length > 0 && (() => {
         const topEnr = enrollments[0];
         const topCourse = topEnr.course?.data?.attributes || topEnr.course || {};
-        const topCourseId = topEnr.course?.id || topEnr.course?.data?.id;
-        const pct = topEnr.progressPercent ?? 0;
+        const topCourseId = topEnr.course?.id || topEnr.course?.data?.id || topCourse.id;
+        let pct = topEnr.progressPercent ?? topEnr.attributes?.progressPercent ?? 0;
+        const topLessonsCount = Array.isArray(topCourse.lessons)
+          ? topCourse.lessons.length
+          : topCourse.lessons?.data?.length || 0;
+
+        if (typeof window !== 'undefined' && user?.id && topCourseId) {
+          try {
+            const cached = localStorage.getItem(`learnsphere_completed_${user.id}_${topCourseId}`);
+            if (cached) {
+              const ids = JSON.parse(cached);
+              if (Array.isArray(ids) && topLessonsCount > 0) {
+                const calculated = Math.min(100, Math.round((ids.length / topLessonsCount) * 100));
+                pct = Math.max(pct, calculated);
+              }
+            }
+          } catch { }
+        }
 
         return (
           <div className="relative rounded-3xl bg-gradient-to-r from-indigo-900/40 via-[#1f1f33] to-[#181826] border border-white/15 p-6 sm:p-8 overflow-hidden shadow-2xl">
@@ -135,10 +151,23 @@ export default function StudentWorkspace({ user }) {
             {enrollments.map((enr) => {
               const course = enr.course?.data?.attributes || enr.course || {};
               const courseId = enr.course?.id || enr.course?.data?.id || course.id;
-              const progressPercent = enr.progressPercent ?? 0;
+              let progressPercent = enr.progressPercent ?? enr.attributes?.progressPercent ?? 0;
               const lessonsCount = Array.isArray(course.lessons)
                 ? course.lessons.length
                 : course.lessons?.data?.length || 0;
+
+              if (typeof window !== 'undefined' && user?.id && courseId) {
+                try {
+                  const cached = localStorage.getItem(`learnsphere_completed_${user.id}_${courseId}`);
+                  if (cached) {
+                    const ids = JSON.parse(cached);
+                    if (Array.isArray(ids) && lessonsCount > 0) {
+                      const calculated = Math.min(100, Math.round((ids.length / lessonsCount) * 100));
+                      progressPercent = Math.max(progressPercent, calculated);
+                    }
+                  }
+                } catch { }
+              }
 
               return (
                 <div
@@ -178,11 +207,10 @@ export default function StudentWorkspace({ user }) {
                       </div>
                       <div className="w-full h-1.5 bg-[#181826] rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            progressPercent === 100
+                          className={`h-full rounded-full transition-all duration-500 ${progressPercent === 100
                               ? 'bg-emerald-400'
                               : 'bg-gradient-to-r from-indigo-500 to-sky-400'
-                          }`}
+                            }`}
                           style={{ width: `${progressPercent}%` }}
                         />
                       </div>
