@@ -110,12 +110,7 @@ export default function UserManagementTab({ currentUser, onRoleUpdated }) {
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-white tracking-tight">Platform User Management</h2>
-            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/30">
-              Admin Only
-            </span>
-          </div>
+          <h2 className="text-xl font-bold text-white tracking-tight">Platform User Management</h2>
           <p className="text-xs text-white/50 mt-0.5">
             Assign and modify platform roles: Admin, Content Manager, Instructor, and Student.
           </p>
