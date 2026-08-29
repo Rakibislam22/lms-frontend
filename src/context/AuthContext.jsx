@@ -38,8 +38,9 @@ export function AuthProvider({ children }) {
         const res = await api.post('/api/auth/local/register', { username, email, password, role });
         Cookies.set('jwt', res.data.jwt, { expires: 7 });
         const me = await api.get('/api/users/me?populate=role');
-        setUser(me.data);
-        return me.data;
+        const finalUser = me.data?.role ? me.data : { ...me.data, ...(res.data?.user?.role ? { role: res.data.user.role } : {}) };
+        setUser(finalUser);
+        return finalUser;
     };
 
     const logout = () => { Cookies.remove('jwt'); setUser(null); };

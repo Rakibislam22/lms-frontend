@@ -129,24 +129,21 @@ export default function RegisterPage() {
                     key={r.type}
                     type="button"
                     onClick={() => setSelectedRole(r.type)}
-                    className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between space-y-2 ${
-                      isSelected
+                    className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between space-y-2 ${isSelected
                         ? `${r.activeBg} ${r.activeBorder} ring-1 ${r.ringColor}`
                         : 'bg-[#181826] border-white/10 hover:border-white/20 text-white/70'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between w-full">
                       <div
-                        className={`w-7 h-7 rounded-xl flex items-center justify-center ${
-                          isSelected ? r.iconActive : 'bg-white/5 text-white/60'
-                        }`}
+                        className={`w-7 h-7 rounded-xl flex items-center justify-center ${isSelected ? r.iconActive : 'bg-white/5 text-white/60'
+                          }`}
                       >
                         <Icon className="w-3.5 h-3.5" />
                       </div>
                       <div
-                        className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                          isSelected ? r.radioActive : 'border-white/20'
-                        }`}
+                        className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${isSelected ? r.radioActive : 'border-white/20'
+                          }`}
                       >
                         {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                       </div>
