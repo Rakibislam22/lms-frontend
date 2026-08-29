@@ -158,8 +158,8 @@ export default function ProgressTrackingTab({ user }) {
                           <div className="w-full h-2 bg-[#181826] rounded-full overflow-hidden border border-white/5">
                             <div
                               className={`h-full rounded-full transition-all duration-500 ${progressPercent === 100
-                                  ? 'bg-emerald-400'
-                                  : 'bg-gradient-to-r from-indigo-500 to-sky-400'
+                                ? 'bg-emerald-400'
+                                : 'bg-gradient-to-r from-indigo-500 to-sky-400'
                                 }`}
                               style={{ width: `${progressPercent}%` }}
                             />

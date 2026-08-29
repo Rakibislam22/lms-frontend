@@ -138,8 +138,8 @@ export default function BlogManagementTab({ user, onOpenCreateBlog }) {
             key={tab.key}
             onClick={() => setStatusFilter(tab.key)}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${statusFilter === tab.key
-                ? 'bg-white text-[#181826] shadow-sm'
-                : 'bg-[#1f1f33] text-white/70 hover:text-white border border-white/5'
+              ? 'bg-white text-[#181826] shadow-sm'
+              : 'bg-[#1f1f33] text-white/70 hover:text-white border border-white/5'
               }`}
           >
             <span>{tab.label}</span>
@@ -189,8 +189,8 @@ export default function BlogManagementTab({ user, onOpenCreateBlog }) {
                   <div className="flex items-center justify-between">
                     <span
                       className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border inline-flex items-center gap-1 ${isPublished
-                          ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                          : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                        ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+                        : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
                         }`}
                     >
                       <span
@@ -223,8 +223,8 @@ export default function BlogManagementTab({ user, onOpenCreateBlog }) {
                       onClick={() => handleToggleStatus(post)}
                       disabled={togglingId === post.id}
                       className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-colors border ${isPublished
-                          ? 'bg-white/5 text-white/70 hover:bg-white/10 border-white/10'
-                          : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border-emerald-500/30'
+                        ? 'bg-white/5 text-white/70 hover:bg-white/10 border-white/10'
+                        : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border-emerald-500/30'
                         }`}
                       title={isPublished ? 'Convert to Draft' : 'Publish Article'}
                     >

@@ -150,8 +150,8 @@ export default function UserManagementTab({ currentUser, onRoleUpdated }) {
             key={tab.key}
             onClick={() => setRoleFilter(tab.key)}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${roleFilter === tab.key
-                ? 'bg-white text-[#181826] shadow-sm'
-                : 'bg-[#1f1f33] text-white/70 hover:text-white border border-white/5'
+              ? 'bg-white text-[#181826] shadow-sm'
+              : 'bg-[#1f1f33] text-white/70 hover:text-white border border-white/5'
               }`}
           >
             <span>{tab.label}</span>
@@ -169,8 +169,8 @@ export default function UserManagementTab({ currentUser, onRoleUpdated }) {
       {feedback && (
         <div
           className={`p-3 rounded-xl border text-xs flex items-center gap-2 animate-in fade-in ${feedback.type === 'success'
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-              : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+            : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
             }`}
         >
           {feedback.type === 'success' ? (
