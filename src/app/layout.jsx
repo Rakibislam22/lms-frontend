@@ -11,7 +11,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="dark scroll-smooth">
+    <html lang="en" className="dark scroll-smooth" data-scroll-behavior="smooth">
       <body className="bg-[#181826] text-white min-h-screen flex flex-col selection:bg-white selection:text-[#181826]">
         <AuthProvider>
           <ModalProvider>
