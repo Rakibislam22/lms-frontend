@@ -21,18 +21,21 @@ export default function StudentWorkspace({ user }) {
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [quizResults, setQuizResults] = useState([]);
+  const [lessonProgresses, setLessonProgresses] = useState([]);
 
   const fetchEnrollmentsAndResults = async () => {
     if (!user) return;
     setLoading(true);
     try {
-      const [enrRes, qrRes] = await Promise.all([
+      const [enrRes, qrRes, progRes] = await Promise.all([
         api.get(`/api/enrollments?filters[student][id][$eq]=${user.id}&populate[course][populate]=*&sort=updatedAt:desc`),
         api.get(`/api/quiz-results?filters[student][id][$eq]=${user.id}&populate=quiz&sort=createdAt:desc`),
+        api.get(`/api/lesson-progresses?filters[student][id][$eq]=${user.id}&populate=*`),
       ]);
 
       setEnrollments(enrRes.data?.data || []);
       setQuizResults(qrRes.data?.data || []);
+      setLessonProgresses(progRes.data?.data || []);
     } catch (err) {
       console.error('Failed to load student learning data:', err);
     } finally {
@@ -44,6 +47,18 @@ export default function StudentWorkspace({ user }) {
     fetchEnrollmentsAndResults();
   }, [user]);
 
+  // Derive verified completed lesson IDs set from server records
+  const completedLessonIdSet = new Set();
+  (lessonProgresses || []).forEach((p) => {
+    const attrs = p.attributes || p;
+    if (attrs.completed === true || attrs.isCompleted === true) {
+      const l = attrs.lesson?.data?.attributes || attrs.lesson?.data || attrs.lesson;
+      if (l?.id) completedLessonIdSet.add(l.id);
+      if (l?.documentId) completedLessonIdSet.add(l.documentId);
+      if (typeof l === 'number') completedLessonIdSet.add(l);
+    }
+  });
+
   return (
     <div className="space-y-8">
       {/* 1. Spotlight Banner: Continue Most Recent Course */}
@@ -52,9 +67,18 @@ export default function StudentWorkspace({ user }) {
         const topCourse = topEnr.course?.data?.attributes || topEnr.course || {};
         const topCourseId = topEnr.course?.id || topEnr.course?.data?.id || topCourse.id;
         let pct = topEnr.progressPercent ?? topEnr.attributes?.progressPercent ?? 0;
-        const topLessonsCount = Array.isArray(topCourse.lessons)
-          ? topCourse.lessons.length
-          : topCourse.lessons?.data?.length || 0;
+        const topCourseLessons = Array.isArray(topCourse.lessons)
+          ? topCourse.lessons
+          : topCourse.lessons?.data || [];
+        const topLessonsCount = topCourseLessons.length;
+
+        const topDoneCount = topCourseLessons.filter(
+          (l) => completedLessonIdSet.has(l.id) || (l.documentId && completedLessonIdSet.has(l.documentId))
+        ).length;
+
+        if (topLessonsCount > 0 && topDoneCount > 0) {
+          pct = Math.max(pct, Math.min(100, Math.round((topDoneCount / topLessonsCount) * 100)));
+        }
 
         if (typeof window !== 'undefined' && user?.id && topCourseId) {
           try {
@@ -66,7 +90,7 @@ export default function StudentWorkspace({ user }) {
                 pct = Math.max(pct, calculated);
               }
             }
-          } catch { }
+          } catch {}
         }
 
         return (
@@ -152,9 +176,23 @@ export default function StudentWorkspace({ user }) {
               const course = enr.course?.data?.attributes || enr.course || {};
               const courseId = enr.course?.id || enr.course?.data?.id || course.id;
               let progressPercent = enr.progressPercent ?? enr.attributes?.progressPercent ?? 0;
-              const lessonsCount = Array.isArray(course.lessons)
-                ? course.lessons.length
-                : course.lessons?.data?.length || 0;
+              const courseLessons = Array.isArray(course.lessons)
+                ? course.lessons
+                : course.lessons?.data || [];
+              const lessonsCount = courseLessons.length;
+
+              const doneCount = lessonsCount > 0
+                ? courseLessons.filter(
+                    (l) => completedLessonIdSet.has(l.id) || (l.documentId && completedLessonIdSet.has(l.documentId))
+                  ).length
+                : 0;
+
+              if (lessonsCount > 0 && doneCount > 0) {
+                progressPercent = Math.max(
+                  progressPercent,
+                  Math.min(100, Math.round((doneCount / lessonsCount) * 100))
+                );
+              }
 
               if (typeof window !== 'undefined' && user?.id && courseId) {
                 try {
