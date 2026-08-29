@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Sparkles,
   LayoutDashboard,
@@ -16,7 +16,10 @@ import {
   X,
   ArrowRight,
   Shield,
-  Award
+  Award,
+  ChevronDown,
+  User,
+  GraduationCap
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -24,8 +27,52 @@ export default function Navbar() {
   const { openCreateCourse, openCreateBlog } = useModal();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
+  const profileRef = useRef(null);
   const roleType = user?.role?.type || 'student';
+
+  const roleConfig = {
+    admin: {
+      label: 'Admin',
+      title: 'Administrator Command Hub',
+      badge: 'Admin • Root Governance',
+      badgeClass: 'bg-rose-500/10 text-rose-300 border-rose-500/30',
+      avatarClass: 'bg-rose-500/20 text-rose-300 border-rose-500/40 shadow-lg shadow-rose-500/20 ring-1 ring-rose-500/30',
+      description: 'Total platform authority: govern users, assign roles, manage all courses, lessons, quizzes, and blog publications.',
+      icon: Shield,
+    },
+    content_manager: {
+      label: 'Content Mgr',
+      title: 'Content Curation Studio',
+      badge: 'Content Manager • Editorial',
+      badgeClass: 'bg-purple-500/10 text-purple-300 border-purple-500/30',
+      avatarClass: 'bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-lg shadow-purple-500/20 ring-1 ring-purple-500/30',
+      description: 'Platform content manager: curate curricula, publish rich articles, manage draft vs published workflows, and build course quizzes.',
+      icon: FileEdit,
+    },
+    instructor: {
+      label: 'Instructor',
+      title: 'Instructor Studio',
+      badge: 'Instructor • Educator',
+      badgeClass: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
+      avatarClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-lg shadow-emerald-500/20 ring-1 ring-emerald-500/30',
+      description: 'Course instructor: build your curriculum, add video lessons, author MCQ quizzes with auto-grading, and monitor student progression.',
+      icon: BookOpen,
+    },
+    student: {
+      label: 'Student',
+      title: 'Student Learning Center',
+      badge: 'Student • Learner',
+      badgeClass: 'bg-sky-500/10 text-sky-300 border-sky-500/30',
+      avatarClass: 'bg-sky-500/20 text-sky-300 border-sky-500/40 shadow-lg shadow-sky-500/20 ring-1 ring-sky-500/30',
+      description: 'Your interactive learning workspace: track course completion percentages, mark lessons finished, and take auto-graded assessments.',
+      icon: Award,
+    },
+  };
+
+  const currentRole = roleConfig[roleType] || roleConfig.student;
+  const RoleIcon = currentRole.icon;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,18 +82,28 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const getRoleBadge = (role) => {
-    switch (role) {
-      case 'admin':
-        return { label: 'Admin', bg: 'bg-rose-500/10 text-rose-300 border-rose-500/30' };
-      case 'content_manager':
-        return { label: 'Content Mgr', bg: 'bg-purple-500/10 text-purple-300 border-purple-500/30' };
-      case 'instructor':
-        return { label: 'Instructor', bg: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' };
-      default:
-        return { label: 'Student', bg: 'bg-sky-500/10 text-sky-300 border-sky-500/30' };
+  // Close profile dropdown on outside click or Escape key
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    if (profileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
     }
-  };
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [profileMenuOpen]);
 
   return (
     <header
@@ -58,7 +115,7 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-18">
-          {/* 1. Brand Logo */}
+          {/* 1. Brand Logo & Nav Links */}
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-3 group">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 p-[1px] shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/30 transition-all">
@@ -172,24 +229,143 @@ export default function Navbar() {
                   <span>Dashboard</span>
                 </Link>
 
-                {/* User Identity Pill */}
-                <div className="flex items-center gap-2 pl-2 border-l border-white/10">
-                  <div className="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-xs border border-indigo-500/30">
-                    {user.username?.charAt(0)?.toUpperCase() || 'U'}
-                  </div>
-                  <div className="hidden xl:flex flex-col text-left">
-                    <span className="text-xs font-semibold text-white leading-none">{user.username}</span>
-                    <span className={`text-[9px] font-semibold px-1.5 py-0.2 rounded-full border inline-block mt-0.5 ${getRoleBadge(roleType).bg}`}>
-                      {getRoleBadge(roleType).label}
-                    </span>
-                  </div>
+                {/* 3. Role-Styled Profile Logo with Dropdown Pop-Up */}
+                <div className="relative pl-1 border-l border-white/10" ref={profileRef}>
                   <button
-                    onClick={logout}
-                    title="Sign out"
-                    className="p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/5 border border-white/5 transition-colors"
+                    onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                    className={`flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border transition-all select-none ${
+                      profileMenuOpen
+                        ? 'bg-[#262640] border-white/30 ring-2 ring-white/10'
+                        : 'bg-[#1f1f33] hover:bg-[#262640] border-white/10'
+                    }`}
+                    title="View Profile Details"
                   >
-                    <LogOut className="w-3.5 h-3.5" />
+                    {/* Color Shifting Profile Logo Icon */}
+                    <div
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs border transition-transform duration-200 ${
+                        currentRole.avatarClass
+                      } ${profileMenuOpen ? 'scale-105' : ''}`}
+                    >
+                      {user.username?.charAt(0)?.toUpperCase() || 'U'}
+                    </div>
+
+                    <div className="hidden lg:flex flex-col text-left">
+                      <span className="text-xs font-semibold text-white leading-none">
+                        {user.username}
+                      </span>
+                      <span
+                        className={`text-[9px] font-semibold px-1.5 py-0.2 rounded-full border inline-block mt-0.5 ${currentRole.badgeClass}`}
+                      >
+                        {currentRole.label}
+                      </span>
+                    </div>
+
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 text-white/50 transition-transform duration-200 ${
+                        profileMenuOpen ? 'rotate-180 text-white' : ''
+                      }`}
+                    />
                   </button>
+
+                  {/* Profile Details Pop-Up Menu */}
+                  {profileMenuOpen && (
+                    <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-3xl bg-[#1f1f33]/95 border border-white/15 p-5 sm:p-6 shadow-2xl backdrop-blur-2xl z-50 space-y-4">
+                      {/* Top User Card */}
+                      <div className="flex items-start gap-3.5 pb-4 border-b border-white/10">
+                        <div
+                          className={`w-12 h-12 rounded-2xl flex items-center justify-center font-extrabold text-lg border shrink-0 ${currentRole.avatarClass}`}
+                        >
+                          {user.username?.charAt(0)?.toUpperCase() || 'U'}
+                        </div>
+
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <h4 className="text-sm font-bold text-white truncate">
+                              {user.username}
+                            </h4>
+                            <span
+                              className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 inline-flex items-center gap-1 ${currentRole.badgeClass}`}
+                            >
+                              <RoleIcon className="w-2.5 h-2.5" />
+                              <span>{currentRole.label}</span>
+                            </span>
+                          </div>
+                          <p className="text-xs text-white/50 truncate font-mono">
+                            {user.email}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Role Details & Scope Section */}
+                      <div className="p-3.5 rounded-2xl bg-[#181826]/70 border border-white/5 space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-white">{currentRole.title}</span>
+                          <span className="flex items-center gap-1 text-[10px] text-emerald-400">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            Live Session
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-white/60 leading-relaxed">
+                          {currentRole.description}
+                        </p>
+                      </div>
+
+                      {/* Quick Links inside Profile Pop-up */}
+                      <div className="space-y-1 pt-1">
+                        <Link
+                          href="/dashboard"
+                          onClick={() => setProfileMenuOpen(false)}
+                          className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 text-xs text-white/80 hover:text-white transition-colors"
+                        >
+                          <span className="flex items-center gap-2 font-medium">
+                            <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
+                            <span>Go to Dashboard</span>
+                          </span>
+                          <ArrowRight className="w-3 h-3 text-white/40" />
+                        </Link>
+
+                        {roleType === 'student' ? (
+                          <Link
+                            href="/my-courses"
+                            onClick={() => setProfileMenuOpen(false)}
+                            className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 text-xs text-white/80 hover:text-white transition-colors"
+                          >
+                            <span className="flex items-center gap-2 font-medium">
+                              <GraduationCap className="w-3.5 h-3.5 text-sky-400" />
+                              <span>My Enrolled Courses</span>
+                            </span>
+                            <ArrowRight className="w-3 h-3 text-white/40" />
+                          </Link>
+                        ) : (
+                          <Link
+                            href="/courses"
+                            onClick={() => setProfileMenuOpen(false)}
+                            className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 text-xs text-white/80 hover:text-white transition-colors"
+                          >
+                            <span className="flex items-center gap-2 font-medium">
+                              <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
+                              <span>Course Catalog</span>
+                            </span>
+                            <ArrowRight className="w-3 h-3 text-white/40" />
+                          </Link>
+                        )}
+                      </div>
+
+                      {/* Integrated Logout Button inside the Profile Pop-up */}
+                      <div className="pt-2 border-t border-white/10">
+                        <button
+                          onClick={() => {
+                            setProfileMenuOpen(false);
+                            logout();
+                          }}
+                          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-semibold text-xs border border-rose-500/30 transition-all shadow-sm active:scale-95"
+                        >
+                          <LogOut className="w-3.5 h-3.5" />
+                          <span>Sign Out of Account</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
@@ -211,7 +387,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile menu toggle */}
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -252,24 +428,35 @@ export default function Navbar() {
 
           <div className="pt-3 border-t border-white/10">
             {user ? (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#1f1f33] border border-white/5">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-xs">
-                      {user.username?.charAt(0)?.toUpperCase()}
+              <div className="space-y-3">
+                {/* Mobile Profile Card with Role Color */}
+                <div className="p-4 rounded-2xl bg-[#1f1f33] border border-white/10 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs border ${currentRole.avatarClass}`}
+                      >
+                        {user.username?.charAt(0)?.toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-white">{user.username}</div>
+                        <div className="text-[10px] text-white/50">{user.email}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-xs font-semibold text-white">{user.username}</div>
-                      <div className="text-[10px] text-white/50">{user.email}</div>
-                    </div>
+                    <span
+                      className={`text-[9px] font-semibold px-2 py-0.5 rounded-full border ${currentRole.badgeClass}`}
+                    >
+                      {currentRole.label}
+                    </span>
                   </div>
-                  <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full border ${getRoleBadge(roleType).bg}`}>
-                    {getRoleBadge(roleType).label}
-                  </span>
+
+                  <div className="text-[10px] text-white/60 leading-relaxed pt-1 border-t border-white/5">
+                    {currentRole.description}
+                  </div>
                 </div>
 
                 {/* Mobile Action Buttons */}
-                <div className="grid grid-cols-2 gap-2 pt-1">
+                <div className="grid grid-cols-2 gap-2">
                   {(roleType === 'admin' || roleType === 'instructor' || roleType === 'content_manager') && (
                     <button
                       onClick={() => {
@@ -305,12 +492,13 @@ export default function Navbar() {
                   <span>Go to Dashboard</span>
                 </Link>
 
+                {/* Mobile Logout Button */}
                 <button
                   onClick={() => {
                     logout();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-white/5 text-white/70 text-xs hover:text-white"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-500/10 text-rose-300 border border-rose-500/30 text-xs font-semibold hover:bg-rose-500/20 transition-all"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign Out</span>
