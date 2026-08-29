@@ -74,9 +74,10 @@ export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted }) 
       // Backend expects answers array or object matching question indices
       const answersArray = questions.map((_, i) => answers[i] ?? '');
 
+      const targetQuizId = quiz.id ?? quiz.documentId;
       const res = await api.post('/api/quiz-results', {
         data: {
-          quiz: quiz.id,
+          quiz: targetQuizId,
           answers: answersArray,
         },
       });
@@ -94,7 +95,7 @@ export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted }) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl rounded-2xl bg-[#181826] border border-white/15 p-6 sm:p-8 shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-2xl rounded-2xl bg-[#181826] border border-white/15 p-6 sm:p-8 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Glow */}
         <div className="absolute top-0 right-0 w-72 h-72 bg-sky-500/10 blur-3xl pointer-events-none" />
 
@@ -131,16 +132,16 @@ export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted }) 
 
         {/* RESULT VIEW */}
         {result ? (
-          <div className="py-8 text-center space-y-6">
-            <div className="w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/10 animate-bounce">
-              <Award className="w-10 h-10" />
+          <div className="py-4 text-center space-y-5 overflow-y-auto pr-1">
+            <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/10 animate-bounce">
+              <Award className="w-8 h-8" />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
                 Auto-Grading Complete!
               </span>
-              <h4 className="text-3xl font-extrabold text-white">
+              <h4 className="text-2xl sm:text-3xl font-extrabold text-white">
                 Your Score: {result.score ?? result.attributes?.score ?? 0} /{' '}
                 {result.totalQuestions ?? result.attributes?.totalQuestions ?? totalQ}
               </h4>
@@ -153,6 +154,7 @@ export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted }) 
               const totalVal = result.totalQuestions ?? result.attributes?.totalQuestions ?? totalQ;
               const safeTotal = totalVal > 0 ? totalVal : 1;
               const percent = Math.round((scoreVal / safeTotal) * 100);
+              const isPassed = percent >= 50;
               return (
                 <div className="p-4 rounded-xl bg-[#1f1f33] border border-white/10 max-w-sm mx-auto flex items-center justify-around text-xs">
                   <div>
@@ -162,13 +164,57 @@ export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted }) 
                   <div className="h-8 w-px bg-white/10" />
                   <div>
                     <div className="text-white/40">Status</div>
-                    <div className="text-lg font-bold text-emerald-400">Passed ✓</div>
+                    <div className={`text-lg font-bold ${isPassed ? 'text-emerald-400' : 'text-amber-400'}`}>
+                      {isPassed ? 'Passed ✓' : 'Needs Practice'}
+                    </div>
                   </div>
                 </div>
               );
             })()}
 
-            <div className="pt-4 flex items-center justify-center gap-3">
+            {/* Answer Breakdown Review */}
+            <div className="text-left space-y-2 pt-2 border-t border-white/10 max-h-52 overflow-y-auto pr-1">
+              <div className="text-xs font-bold uppercase tracking-wider text-white/50 mb-2">
+                Question Breakdown
+              </div>
+              {questions.map((q, idx) => {
+                const userAns = answers[idx];
+                const correctAns =
+                  q.correctAnswer ??
+                  (Array.isArray(q.options) && q.correctIndex !== undefined ? q.options[q.correctIndex] : null);
+                const isCorrect =
+                  userAns &&
+                  correctAns &&
+                  String(userAns).trim().toLowerCase() === String(correctAns).trim().toLowerCase();
+
+                return (
+                  <div
+                    key={idx}
+                    className={`p-3 rounded-xl border text-xs space-y-1 ${isCorrect ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-rose-500/10 border-rose-500/30'
+                      }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold text-white truncate">
+                        Q{idx + 1}: {q.question}
+                      </span>
+                      <span className={`font-bold shrink-0 ${isCorrect ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {isCorrect ? 'Correct ✓' : 'Incorrect ✗'}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-white/70">
+                      Your selection: <span className="text-white font-medium">{userAns || 'No Answer'}</span>
+                    </div>
+                    {!isCorrect && correctAns && (
+                      <div className="text-[11px] text-emerald-400">
+                        Correct option: <span className="font-semibold">{correctAns}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="pt-2 flex items-center justify-center gap-3">
               <button
                 onClick={onClose}
                 className="px-6 py-2.5 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all shadow-md shadow-white/10"
@@ -217,14 +263,14 @@ export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted }) 
                         type="button"
                         onClick={() => handleSelectOption(opt)}
                         className={`w-full text-left p-3 rounded-xl border text-xs font-medium transition-all flex items-center gap-3 ${isSelected
-                            ? 'bg-sky-500/20 border-sky-500/60 text-white shadow-md shadow-sky-500/10'
-                            : 'bg-[#181826] border-white/10 text-white/80 hover:bg-white/5 hover:border-white/20'
+                          ? 'bg-sky-500/20 border-sky-500/60 text-white shadow-md shadow-sky-500/10'
+                          : 'bg-[#181826] border-white/10 text-white/80 hover:bg-white/5 hover:border-white/20'
                           }`}
                       >
                         <div
                           className={`w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 border ${isSelected
-                              ? 'bg-sky-500 text-white border-sky-400'
-                              : 'bg-white/5 text-white/50 border-white/10'
+                            ? 'bg-sky-500 text-white border-sky-400'
+                            : 'bg-white/5 text-white/50 border-white/10'
                             }`}
                         >
                           {letter}
