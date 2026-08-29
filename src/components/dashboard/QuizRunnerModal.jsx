@@ -14,7 +14,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 
-export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted }) {
+export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted, onQuizSubmitted }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -85,6 +85,7 @@ export default function QuizRunnerModal({ isOpen, onClose, quiz, onCompleted }) 
       const resData = res.data?.data || res.data;
       setResult(resData);
       if (onCompleted) onCompleted(resData);
+      if (onQuizSubmitted) onQuizSubmitted(resData);
     } catch (err) {
       console.error('Quiz submission failed:', err);
       setError(err.response?.data?.error?.message || 'Failed to evaluate quiz submission.');
