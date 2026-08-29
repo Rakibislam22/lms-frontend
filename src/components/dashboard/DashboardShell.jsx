@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 import StatsOverview from './StatsOverview';
@@ -26,6 +26,32 @@ export default function DashboardShell() {
   // Default active tab based on role
   const defaultTab = roleType === 'student' ? 'my-learning' : 'courses';
   const [activeTab, setActiveTab] = useState(defaultTab);
+
+  // Sync tab with URL search parameter or custom tab-switch event
+  useEffect(() => {
+    const checkTab = () => {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      if (tab) {
+        setActiveTab(tab);
+      }
+    };
+
+    checkTab();
+
+    const handleSwitchTab = (e) => {
+      if (e.detail) {
+        setActiveTab(e.detail);
+      }
+    };
+
+    window.addEventListener('switch-dashboard-tab', handleSwitchTab);
+    window.addEventListener('popstate', checkTab);
+    return () => {
+      window.removeEventListener('switch-dashboard-tab', handleSwitchTab);
+      window.removeEventListener('popstate', checkTab);
+    };
+  }, []);
 
   // Local refresh trigger
   const [localTrigger, setLocalTrigger] = useState(0);
