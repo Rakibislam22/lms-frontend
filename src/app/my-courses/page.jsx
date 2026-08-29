@@ -3,8 +3,6 @@
 import ProtectedRoute from '@/components/ProtectedRoute';
 import StudentWorkspace from '@/components/dashboard/StudentWorkspace';
 import { useAuth } from '@/context/AuthContext';
-import Link from 'next/link';
-import { LayoutDashboard } from 'lucide-react';
 
 function MyCoursesContent() {
   const { user } = useAuth();
@@ -19,13 +17,6 @@ function MyCoursesContent() {
           </p>
         </div>
 
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-[#181826] font-bold text-xs hover:bg-white/90 transition-all shadow-md shadow-white/10"
-        >
-          <LayoutDashboard className="w-4 h-4" />
-          <span>Full Dashboard</span>
-        </Link>
       </div>
 
       <StudentWorkspace user={user} />
