@@ -69,8 +69,8 @@ export default function CourseDetailPage({ params }) {
   // Active Educator Tab
   const [educatorTab, setEducatorTab] = useState('curriculum'); // 'curriculum' | 'quizzes' | 'students'
 
-  const fetchAllData = async () => {
-    setLoading(true);
+  const fetchAllData = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       // 1. Fetch Course details (supports Strapi 5 numeric id and documentId)
       let courseData = null;
@@ -187,13 +187,13 @@ export default function CourseDetailPage({ params }) {
               });
             }
           }
-        } catch {}
+        } catch { }
 
         // Keep local cache clean with only verified course lesson IDs
         const validIds = fetchedLessons.filter((l) => completed.has(l.id)).map((l) => l.id);
         try {
           localStorage.setItem(cacheKey, JSON.stringify(validIds));
-        } catch {}
+        } catch { }
 
         setCompletedLessonIds(completed);
 
@@ -216,7 +216,7 @@ export default function CourseDetailPage({ params }) {
     } catch (err) {
       console.error('Failed to load course details:', err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -247,7 +247,7 @@ export default function CourseDetailPage({ params }) {
     const cacheKey = `learnsphere_completed_${user.id}_${actualCourseId}`;
     try {
       localStorage.setItem(cacheKey, JSON.stringify(validIds));
-    } catch {}
+    } catch { }
 
     // Calculate new percentage based on completed lessons
     const newPct = lessons.length > 0 ? Math.min(100, Math.round((validIds.length / lessons.length) * 100)) : 0;
@@ -333,22 +333,24 @@ export default function CourseDetailPage({ params }) {
     }
   };
 
-  const handleQuizCompleted = (resData) => {
-    if (resData && activeQuizToRun) {
+  const handleCloseQuizModal = (result) => {
+    if (result && activeQuizToRun) {
       const enrichedResult = {
-        ...resData,
+        ...result,
         quiz: activeQuizToRun,
       };
       setQuizResults((prev) => {
         const filtered = prev.filter(
           (r) =>
-            (r.attributes?.quiz?.id || r.quiz?.id) !== activeQuizToRun.id &&
+            (r.attributes?.quiz?.id || r.quiz?.id || (typeof r.quiz === 'number' ? r.quiz : null)) !== activeQuizToRun.id &&
             (r.attributes?.quiz?.documentId || r.quiz?.documentId) !== activeQuizToRun.documentId
         );
         return [enrichedResult, ...filtered];
       });
+      // Fetch fresh data in the background silently without unmounting the UI
+      fetchAllData(true);
     }
-    fetchAllData();
+    setActiveQuizToRun(null);
   };
 
   if (loading) {
@@ -993,11 +995,9 @@ export default function CourseDetailPage({ params }) {
         {activeQuizToRun && (
           <QuizRunnerModal
             isOpen={!!activeQuizToRun}
-            onClose={() => setActiveQuizToRun(null)}
+            onClose={handleCloseQuizModal}
             quiz={activeQuizToRun}
             studentId={user?.id}
-            onCompleted={handleQuizCompleted}
-            onQuizSubmitted={handleQuizCompleted}
           />
         )}
       </div>
