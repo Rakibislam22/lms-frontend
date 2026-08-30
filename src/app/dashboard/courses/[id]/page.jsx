@@ -10,6 +10,8 @@ import QuizManagerModal from '@/components/dashboard/QuizManagerModal';
 import QuizRunnerModal from '@/components/dashboard/QuizRunnerModal';
 import CourseModal from '@/components/dashboard/CourseModal';
 import api from '@/lib/api';
+import { toast } from 'react-toastify';
+import { confirmDelete } from '@/lib/alerts';
 import {
   ArrowLeft,
   BookOpen,
@@ -225,6 +227,26 @@ export default function CourseDetailPage({ params }) {
       fetchAllData();
     }
   }, [courseId, user]);
+
+  // Educator: Delete Course
+  const handleDeleteCurrentCourse = async () => {
+    const isConfirmed = await confirmDelete({
+      title: 'Delete Course?',
+      text: 'Are you sure you want to permanently delete this course and its entire curriculum? This cannot be undone.',
+      confirmText: 'Yes, delete course',
+    });
+    if (!isConfirmed) return;
+
+    try {
+      const targetId = course?.documentId || course?.id || courseId;
+      await api.delete(`/api/courses/${targetId}`);
+      toast.success('Course deleted successfully.');
+      router.push('/dashboard');
+    } catch (err) {
+      console.error('Failed to delete course:', err);
+      toast.error(err.response?.data?.error?.message || 'Failed to delete course.');
+    }
+  };
 
   // Student: Toggle Lesson Completion
   const handleToggleLessonComplete = async (lessonId) => {
@@ -473,10 +495,18 @@ export default function CourseDetailPage({ params }) {
 
                 <button
                   onClick={() => setIsEditCourseOpen(true)}
-                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10"
+                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 transition-colors"
                   title="Edit Course Metadata"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  onClick={handleDeleteCurrentCourse}
+                  className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 transition-colors"
+                  title="Delete Course"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             )}

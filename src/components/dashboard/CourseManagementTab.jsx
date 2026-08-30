@@ -176,7 +176,7 @@ export default function CourseManagementTab({ user, onOpenCreateCourse, coursesT
                       </button>
 
                       <button
-                        onClick={() => handleDeleteCourse(course.id)}
+                        onClick={() => handleDeleteCourse(course.documentId || course.id)}
                         className="p-1.5 rounded-lg text-rose-400/70 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
                         title="Delete course"
                       >

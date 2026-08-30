@@ -42,7 +42,8 @@ export default function CourseModal({ isOpen, onClose, course, onSaved }) {
 
     try {
       if (isEdit) {
-        await api.put(`/api/courses/${course.id}`, {
+        const targetId = course.documentId || course.id;
+        await api.put(`/api/courses/${targetId}`, {
           data: {
             title: title.trim(),
             description: description.trim(),
