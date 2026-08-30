@@ -52,7 +52,7 @@ LearnSphere enforces strict, leak-free role-based access control (RBAC) across f
 ### 1. Core Features (Mandatory)
 
 - **Authentication & RBAC**:
-  - Sign up with role selection: **Student**, **Instructor**, or **Content Manager** (Admin is protected from public signup).
+  - Sign up with role selection: **Student** or **Instructor** (Admin and Content Manager are protected from public signup).
   - JWT token stored securely in cookies (`js-cookie`).
   - **Auto-Redirect**: If an authenticated user visits `/login` or `/register`, they are automatically redirected to `/dashboard`.
   - Client-side route protection (`ProtectedRoute.jsx`) ensuring unauthorized roles cannot access restricted routes.

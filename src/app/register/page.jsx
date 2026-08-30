@@ -14,7 +14,6 @@ import {
   AlertCircle,
   GraduationCap,
   BookOpen,
-  FileEdit,
   ShieldCheck
 } from 'lucide-react';
 
@@ -40,17 +39,6 @@ const SIGNUP_ROLES = [
     ringColor: 'ring-indigo-500/30',
     iconActive: 'bg-indigo-500/20 text-indigo-300',
     radioActive: 'border-indigo-400 bg-indigo-500',
-  },
-  {
-    type: 'content_manager',
-    title: 'Content Manager',
-    desc: 'Author technical articles & publish blog insights',
-    icon: FileEdit,
-    activeBg: 'bg-purple-500/10',
-    activeBorder: 'border-purple-500/40',
-    ringColor: 'ring-purple-500/30',
-    iconActive: 'bg-purple-500/20 text-purple-300',
-    radioActive: 'border-purple-400 bg-purple-500',
   },
 ];
 
@@ -78,7 +66,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const newUser = await register(username, email, password, selectedRole);
-      const roleLabel = selectedRole === 'content_manager' ? 'Content Manager' : selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1);
+      const roleLabel = selectedRole === 'instructor' ? 'Instructor' : 'Student';
       toast.success(`Welcome to LearnSphere, ${newUser?.username || username}! Signed up as ${roleLabel}. 🎉`);
       router.push('/dashboard');
     } catch (err) {
@@ -140,12 +128,12 @@ export default function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Role Selector (Student, Instructor, Content Manager - Without Admin) */}
+          {/* Role Selector (Student or Instructor) */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-white/70 mb-2">
               Select Your Role
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {SIGNUP_ROLES.map((r) => {
                 const Icon = r.icon;
                 const isSelected = selectedRole === r.type;
