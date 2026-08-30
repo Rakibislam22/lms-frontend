@@ -41,7 +41,7 @@ LearnSphere enforces strict, leak-free role-based access control (RBAC) across f
 | **Add / edit / delete lessons** | ✅ | ✅ | Own courses | ❌ |
 | **Create quizzes** | ✅ | ✅ | Own courses | ❌ |
 | **View student progress & results** | ✅ | ✅ | Own courses | Own only |
-| **Write / manage blog posts** | ✅ | ✅ | ✅ (Own) | ❌ |
+| **Write / manage blog posts** | ✅ | ✅ | ❌ | ❌ |
 | **Enroll in a course** | ❌ | ❌ | ❌ | ✅ |
 | **Take quizzes & view auto-grades** | ❌ | ❌ | ❌ | ✅ |
 
@@ -83,7 +83,7 @@ LearnSphere enforces strict, leak-free role-based access control (RBAC) across f
   - Live user role manager: Promote or modify any user's role on the fly with SweetAlert2 confirmation.
 - **4. Blog — Draft vs. Published Workflow**:
   - Dedicated `/blog` index and `/blog/[id]` dynamic reading page.
-  - Content Managers, Admins, and Instructors can create, edit, toggle draft/published status, and delete articles.
+  - Content Managers and Admins can create, edit, toggle draft/published status, and delete articles.
   - Published articles are public; draft articles are strictly hidden from students and public visitors.
 
 ### 3. Extra Polish & UX Enhancements

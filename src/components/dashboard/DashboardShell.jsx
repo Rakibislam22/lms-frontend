@@ -81,7 +81,6 @@ export default function DashboardShell() {
       case 'instructor':
         return [
           { key: 'courses', label: 'My Courses & Curricula', shortLabel: 'My Courses', icon: BookOpen },
-          { key: 'blogs', label: 'Blog & Publications', shortLabel: 'Blogs', icon: FileEdit },
           { key: 'progress', label: 'Enrolled Student Analytics', shortLabel: 'Analytics', icon: TrendingUp },
         ];
       case 'student':
@@ -153,8 +152,8 @@ export default function DashboardShell() {
             <UserManagementTab currentUser={user} onRoleUpdated={refreshAll} />
           )}
 
-          {/* Blog Publications Tab (Admin, Content Manager, Instructor) */}
-          {activeTab === 'blogs' && (roleType === 'admin' || roleType === 'content_manager' || roleType === 'instructor') && (
+          {/* Blog Publications Tab (Admin, Content Manager Only) */}
+          {activeTab === 'blogs' && (roleType === 'admin' || roleType === 'content_manager') && (
             <BlogManagementTab
               user={user}
               onOpenCreateBlog={openCreateBlog}
