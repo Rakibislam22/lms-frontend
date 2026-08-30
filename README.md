@@ -7,7 +7,7 @@
 
 ## 🔗 Live Deployment & Repositories
 
-- **Live Frontend (Vercel):** [https://lms-frontend-rakib.vercel.app](https://lms-frontend-rakib.vercel.app) *(or your Vercel deployment URL)*
+- **Live Frontend (Vercel):** [https://learn-sphere-pi.vercel.app](https://learn-sphere-pi.vercel.app)
 - **Live Backend (Railway):** [https://lms-backend-production-b6a5.up.railway.app](https://lms-backend-production-b6a5.up.railway.app)
 - **Frontend GitHub Repository:** [https://github.com/Rakibislam22/lms-frontend](https://github.com/Rakibislam22/lms-frontend)
 - **Backend GitHub Repository:** [https://github.com/Rakibislam22/lms-backend](https://github.com/Rakibislam22/lms-backend)
@@ -164,12 +164,11 @@ npm install
 Create a `.env.local` file in the root directory:
 
 ```env
-# URL to your local Strapi backend or live Railway backend
-NEXT_PUBLIC_STRAPI_URL=https://lms-backend-production-b6a5.up.railway.app
+# URL to your local Strapi backend or deployed Railway backend
+NEXT_PUBLIC_STRAPI_URL=http://localhost:1337
+# Or for deployed backend:
+# NEXT_PUBLIC_STRAPI_URL=https://your-backend.up.railway.app
 ```
-
-> **Note:** For fully local development with a local Strapi instance running on port 1337, set:  
-> `NEXT_PUBLIC_STRAPI_URL=http://localhost:1337`
 
 ### 5. Run the Development Server
 ```bash
