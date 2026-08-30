@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -10,12 +10,18 @@ import { Sparkles, ArrowRight, Lock, User as UserIcon, AlertCircle } from 'lucid
 import { toast } from 'react-toastify';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { user, login, loading: authLoading } = useAuth();
   const router = useRouter();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace('/dashboard');
+    }
+  }, [user, authLoading, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,6 +39,19 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  if (authLoading || user) {
+    return (
+      <main className="min-h-[85vh] flex items-center justify-center p-4 bg-[#181826] text-white">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center animate-pulse">
+            <div className="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+          </div>
+          <p className="text-xs text-white/50 font-medium">Redirecting to dashboard...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-[85vh] flex items-center justify-center p-4 sm:p-6 bg-[#181826] text-white">
