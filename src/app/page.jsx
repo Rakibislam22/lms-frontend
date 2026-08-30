@@ -50,7 +50,11 @@ export default function Home() {
     api.get('/api/blog-posts?filters[status][$eq]=published&populate=*&pagination[limit]=3&sort=createdAt:desc')
       .then(res => {
         const data = res.data?.data || [];
-        setPosts(data);
+        const publishedOnly = data.filter((p) => {
+          const attrs = p.attributes || p;
+          return (attrs.status || 'draft') === 'published';
+        });
+        setPosts(publishedOnly);
       })
       .catch(() => { })
       .finally(() => setPostsLoading(false));

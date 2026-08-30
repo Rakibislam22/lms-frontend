@@ -16,10 +16,10 @@
 
 ## 🧱 Mandatory Tech Stack
 
-| Layer | Technology | Hosting |
-|---|---|---|
-| **Frontend** | **Next.js 16 (App Router) + Tailwind CSS + Lucide React** | **Vercel** |
-| **Backend / CMS** | **Strapi 5 (Headless CMS, SQLite / PostgreSQL)** | **Railway** |
+| Layer             | Technology                                                | Hosting     |
+| ----------------- | --------------------------------------------------------- | ----------- |
+| **Frontend**      | **Next.js 16 (App Router) + Tailwind CSS + Lucide React** | **Vercel**  |
+| **Backend / CMS** | **Strapi 5 (Headless CMS, SQLite / PostgreSQL)**          | **Railway** |
 
 ---
 
@@ -34,22 +34,23 @@ LearnSphere enforces strict, leak-free role-based access control (RBAC) across f
 
 ### Permission Matrix
 
-| Action | Admin | Content Manager | Instructor | Student |
-|---|:---:|:---:|:---:|:---:|
-| **Manage users & assign roles** | ✅ | ❌ | ❌ | ❌ |
-| **Create / edit / delete any course** | ✅ | ✅ | Own only | ❌ |
-| **Add / edit / delete lessons** | ✅ | ✅ | Own courses | ❌ |
-| **Create quizzes** | ✅ | ✅ | Own courses | ❌ |
-| **View student progress & results** | ✅ | ✅ | Own courses | Own only |
-| **Write / manage blog posts** | ✅ | ✅ | ❌ | ❌ |
-| **Enroll in a course** | ❌ | ❌ | ❌ | ✅ |
-| **Take quizzes & view auto-grades** | ❌ | ❌ | ❌ | ✅ |
+| Action                                | Admin | Content Manager | Instructor  | Student  |
+| ------------------------------------- | :---: | :-------------: | :---------: | :------: |
+| **Manage users & assign roles**       |  ✅   |       ❌        |     ❌      |    ❌    |
+| **Create / edit / delete any course** |  ✅   |       ✅        |  Own only   |    ❌    |
+| **Add / edit / delete lessons**       |  ✅   |       ✅        | Own courses |    ❌    |
+| **Create quizzes**                    |  ✅   |       ✅        | Own courses |    ❌    |
+| **View student progress & results**   |  ✅   |       ✅        | Own courses | Own only |
+| **Write / manage blog posts**         |  ✅   |       ✅        |     ❌      |    ❌    |
+| **Enroll in a course**                |  ❌   |       ❌        |     ❌      |    ✅    |
+| **Take quizzes & view auto-grades**   |  ❌   |       ❌        |     ❌      |    ✅    |
 
 ---
 
 ## ✅ Implemented Features
 
 ### 1. Core Features (Mandatory)
+
 - **Authentication & RBAC**:
   - Sign up with role selection: **Student**, **Instructor**, or **Content Manager** (Admin is protected from public signup).
   - JWT token stored securely in cookies (`js-cookie`).
@@ -68,6 +69,7 @@ LearnSphere enforces strict, leak-free role-based access control (RBAC) across f
   - Sequential lesson viewer with collapsible playlist sidebar, responsive video player, and complete toggle.
 
 ### 2. Differentiator Features (Advanced)
+
 - **1. Progress Tracking**:
   - Students mark individual lessons as "complete" or "in-progress".
   - Real-time progress bar calculation (`(completed / total) * 100%`).
@@ -87,6 +89,7 @@ LearnSphere enforces strict, leak-free role-based access control (RBAC) across f
   - Published articles are public; draft articles are strictly hidden from students and public visitors.
 
 ### 3. Extra Polish & UX Enhancements
+
 - **React-Toastify**: Configured at `bottom-right` for non-intrusive notifications (login welcome messages, enrollment confirmations, link copy alerts, submission confirmations).
 - **SweetAlert2 (Dark Theme)**: Replaced native browser `alert()` and `confirm()` with custom-styled dark dialogs matching LearnSphere's UI palette (`#181826` / `#1f1f33`).
 - **Modal Background Scroll Lock**: Custom hook (`useScrollLock`) disables background page scrolling whenever any modal is open.
@@ -146,21 +149,25 @@ lms-frontend/
 ## 🚀 Local Development Setup
 
 ### 1. Prerequisites
+
 - **Node.js**: `v20.x` or higher
 - **npm**: `v9.x` or higher
 
 ### 2. Clone the Repository
+
 ```bash
 git clone https://github.com/Rakibislam22/lms-frontend.git
 cd lms-frontend
 ```
 
 ### 3. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 4. Configure Environment Variables
+
 Create a `.env.local` file in the root directory:
 
 ```env
@@ -171,6 +178,7 @@ NEXT_PUBLIC_STRAPI_URL=http://localhost:1337
 ```
 
 ### 5. Run the Development Server
+
 ```bash
 npm run dev
 ```
@@ -178,6 +186,7 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### 6. Production Build & Linting
+
 ```bash
 npm run build
 npm run lint
@@ -210,4 +219,5 @@ When recording the mandatory 10-minute screen demonstration:
 ---
 
 ## 📄 License
+
 This project was developed for the **Junior Software Engineer — Project Round**. All rights reserved.

@@ -31,7 +31,7 @@ export default function BlogPage() {
     const fetchBlogPosts = async () => {
       setLoading(true);
       try {
-        const res = await api.get('/api/blog-posts?populate=*&sort=createdAt:desc');
+        const res = await api.get('/api/blog-posts?filters[status][$eq]=published&populate=*&sort=createdAt:desc');
         const items = res.data?.data || [];
         setPosts(items);
       } catch (err) {
@@ -44,17 +44,22 @@ export default function BlogPage() {
     fetchBlogPosts();
   }, []);
 
-  // Filter posts based on search query and topic
-  const filteredPosts = posts.filter((post) => {
-    const attrs = post.attributes || post;
-    const title = (attrs.title || '').toLowerCase();
-    const body = (attrs.body || '').toLowerCase();
-    const query = searchQuery.toLowerCase();
-    const matchesSearch = title.includes(query) || body.includes(query);
+  // Filter posts based on published status, search query, and topic
+  const filteredPosts = posts
+    .filter((post) => {
+      const attrs = post.attributes || post;
+      return (attrs.status || 'draft') === 'published';
+    })
+    .filter((post) => {
+      const attrs = post.attributes || post;
+      const title = (attrs.title || '').toLowerCase();
+      const body = (attrs.body || '').toLowerCase();
+      const query = searchQuery.toLowerCase();
+      const matchesSearch = title.includes(query) || body.includes(query);
 
-    if (selectedTopic === 'All') return matchesSearch;
-    return matchesSearch && (title.includes(selectedTopic.toLowerCase()) || body.includes(selectedTopic.toLowerCase()));
-  });
+      if (selectedTopic === 'All') return matchesSearch;
+      return matchesSearch && (title.includes(selectedTopic.toLowerCase()) || body.includes(selectedTopic.toLowerCase()));
+    });
 
   const featuredPost = filteredPosts.length > 0 ? filteredPosts[0] : null;
   const standardPosts = filteredPosts.length > 1 ? filteredPosts.slice(1) : [];

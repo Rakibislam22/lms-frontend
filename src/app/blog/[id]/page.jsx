@@ -31,7 +31,7 @@ export default function BlogDetailPage() {
   const [copied, setCopied] = useState(false);
 
   const roleType = user?.role?.type || 'student';
-  const canManageBlog = roleType === 'admin' || roleType === 'content_manager' || roleType === 'instructor';
+  const canManageBlog = roleType === 'admin' || roleType === 'content_manager';
 
   useEffect(() => {
     if (!postId) return;
@@ -69,20 +69,32 @@ export default function BlogDetailPage() {
           throw new Error('Blog post could not be located.');
         }
 
+        const attrs = postData.attributes || postData;
+        const postStatus = attrs.status || 'draft';
+        if (postStatus !== 'published' && !canManageBlog) {
+          throw new Error('This article is currently in draft mode and not available for public reading.');
+        }
+
         setPost(postData);
 
-        // Fetch related posts (excluding current post)
+        // Fetch related published posts (excluding current post)
         try {
-          const relRes = await api.get('/api/blog-posts?populate=*&sort=createdAt:desc&pagination[pageSize]=4');
+          const relRes = await api.get('/api/blog-posts?filters[status][$eq]=published&populate=*&sort=createdAt:desc&pagination[pageSize]=6');
           const allItems = relRes.data?.data || [];
-          const others = allItems.filter((p) => p.id !== postData.id && p.documentId !== postData.documentId).slice(0, 3);
+          const others = allItems
+            .filter((p) => {
+              const pAttrs = p.attributes || p;
+              return (pAttrs.status || 'draft') === 'published';
+            })
+            .filter((p) => p.id !== postData.id && p.documentId !== postData.documentId)
+            .slice(0, 3);
           setRelatedPosts(others);
         } catch (e) {
           console.warn('Failed to load related posts:', e);
         }
       } catch (err) {
         console.error('Failed to fetch blog post:', err);
-        setError('This article could not be found or you do not have permission to view it.');
+        setError(err.message || 'This article could not be found or you do not have permission to view it.');
       } finally {
         setLoading(false);
       }
